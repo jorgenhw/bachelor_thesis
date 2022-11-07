@@ -1,3 +1,4 @@
-# Stratified Evaluation
-### *Bachelor thesis Cognitive Science*
-### Aarhus University
+# 🤖 Stratified Evaluation Method 🤖
+##### *Bachelor thesis Cognitive Science*
+##### *Aarhus University*
+
