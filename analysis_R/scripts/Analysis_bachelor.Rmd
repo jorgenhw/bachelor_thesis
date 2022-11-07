@@ -1,0 +1,173 @@
+---
+title: "Analysis_bachelor"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pacman)
+pacman::p_load(tidyverse)
+```
+
+```{r loading data}
+df <- read_csv("/Users/wibe/Downloads/dfs/classification_topics.csv")
+
+topics <- read_csv("/Users/wibe/Downloads/sub_groups_26102022 (1).csv")
+
+clas <- read_csv("/Users/wibe/Downloads/df_classification_report.csv")
+
+test <- read_csv("/Users/wibe/Downloads/test.csv")
+```
+
+# Statistical analysis
+
+```{r linear model}  
+#If you have more predictors, simply use "+" (then it becomes multilevel though)
+model <- lm(outcome ~ predictor, data = mydata)
+
+summary(model)
+round(model@beta, 2) # Only showing coefficients of model
+```
+
+```{r plotting}
+df$classification <- as.factor(df$classification)
+df$label <- as.factor(df$label)
+df$v <- (ifelse(df$classification == "MISS" , 0,
+                        ifelse(df$classification == "TRUE", 1, NA)))
+
+model <- lm(classification ~ topic, data = df)
+
+#make a GLM model for shape
+m <- glm(classification ~ topic, 
+         data = df, #  (use your data name here) 
+         family = binomial)
+summary(m)
+
+table(df$topic)
+
+#Basic boxplot
+
+df %>% 
+  group_by(topic) %>% 
+  summarise("avg_v" = mean(v)) %>% 
+  ggplot(aes(x = topic, y = avg_v))+
+  geom_point() +
+  ggtitle("Box Plot")
+
+df$v <- (ifelse(df$classification == "MISS" , 0,
+                        ifelse(df$classification == "TRUE", 1, NA)))
+
+table(df$topic)
+
+ggplot(df, aes(x=topic, y=classification , fill=label))+
+  geom_boxplot(width = 0.5) +
+  ggtitle("Box Plot") +
+  stat_summary(fun = mean, geom = "point", shape = 23, colour = "Black") + 
+  geom_errorbar(stat = 'summary', fun.data = mean_se, width = 0.5)
+
+
+
+```
+
+# Comparing models
+
+## Error rates within models over epochs
+
+### jonfd/electra-small-nordic
+
+```{r reading classification reports}
+e1 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run1/df_classification_report1.csv")
+e2 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run2/df_classification_report2.csv")
+e3 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run3/df_classification_report3.csv")
+e4 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run4/df_classification_report4.csv")
+e5 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run5/df_classification_report5.csv")
+e6 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run6/df_classification_report6.csv")
+e7 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run7/df_classification_report7.csv")
+e8 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run8/df_classification_report8.csv")
+e9 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run9/df_classification_report9.csv")
+e10 <- read_csv("/Users/wibe/Desktop/jonfd:electra-small-nordic/run10/df_classification_report10.csv")
+
+# adding epoch pointer column
+e1['run'] <- 1
+e2['run'] <- 2
+e3['run'] <- 3
+e4['run'] <- 4
+e5['run'] <- 5
+e6['run'] <- 6
+e7['run'] <- 7
+e8['run'] <- 8
+e9['run'] <- 9
+e10['run'] <- 10
+```
+
+```{r}
+classification_report_jondf <- rbind(e1,e2,e3,e4,e5,e6,e7,e8,e9,e10)
+
+classification_report_jondf['MISS_binary'] <- ifelse(classification_report_jondf$Misclassification == "TRUE", 1, 0)
+```
+
+```{r}
+# Error rate pr run
+classification_report_jondf %>% 
+  group_by(run) %>% 
+  summarise("over_all_error_rate" = mean(MISS_binary))
+
+#Overall error rate
+classification_report_jondf %>% 
+  summarise("over_all_error_rate" = mean(MISS_binary))
+```
+
+#### Comparing on topics
+```{r}
+topics <- read_csv("/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/BerTopic/sub_groups_07112022.csv")
+topics <- topics %>% 
+  rename(Text = original_tweet)
+```
+
+```{r}
+topics_df <- topics %>% 
+  distinct(Text)
+  
+
+
+topic_clas <- merge(df, topics_df, by = "Text", all.x = T, all.y = F)
+
+names(classification_report_jondf)
+```
+
+```{r}
+length(unique(topics$Text))
+```
+
+```{r}
+df <- read_csv("https://raw.githubusercontent.com/jorgenhw/bachelor_data/main/angry_tweetes_mini.csv")
+
+length(unique(df$text))
+```
+
+
+### vestinn/ScandiBERT
+
+```{r}
+pacman::p_load(vroom)
+
+datadir<-"/Users/wibe/Desktop/vestinn:ScandiBERT/class_reports"
+
+files <- list.files(datadir,pattern='*.csv',full.names=TRUE)
+
+df <- vroom(files)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
