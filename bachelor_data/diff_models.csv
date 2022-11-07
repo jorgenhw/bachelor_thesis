@@ -1,0 +1,97 @@
+,Unnamed: 0,Predicted Labels,True Labels,Misclassification,Text,Logit Values,Probabilities
+0,0,positive,neutral,MISS,@USER Klæk det æg!,[-0.63929296  0.33355     0.3575727 ],[0.15735075 0.4162642  0.42638507]
+6,6,neutral,neutral,TRUE,"La oss si at Chelsea beholder Hazard. 
+Kepa
+Dave
+Luiz
+Rudi
+Emerson
+Jorghino
+Kante
+RLC
+CHO
+Hazard
+Abraham
+
+Men det viktigste er faktisk å beholde Sarri.
+Lukter gull neste år.
+#carefree",[-0.22602789  0.14084728  0.07107323],[0.26391008 0.38087973 0.35521016]
+11,11,neutral,positive,MISS,"@USER @USER @USER @USER Og her er den lille statistik, som @USER gjorde sit bedste for at skyde ned ;)
+
+#esportdk #csgo #globaloffensive 
+
+[LINK]",[-0.80291384  0.44308522  0.38012722],[0.1291874  0.4491079  0.42170465]
+14,14,negative,negative,TRUE,@USER @USER Alle fersken-vingummier på et skib og ud af verden. Asap.,[ 0.25140572 -0.00298532 -0.27502578],[0.4226368  0.32770774 0.24965544]
+16,16,neutral,neutral,TRUE,"@USER Ok så går jeg i det mindste ikke glip af noget. Jeg lavede blogger-madder med avokado, hytteost og pocheret æg i stedt (er det stadig blogger mad hvis man ikke tager billede af det?)",[-0.4113981   0.28636315  0.11379571],[0.21276434 0.4274966  0.35973907]
+21,21,positive,neutral,MISS,"@USER @USER Det vilde er, at Cruyff havde større betydning i FC Barcelona som træner end som spiiller 😁👍🏼",[-0.85232496  0.43571347  0.43656763],[0.12114701 0.4392388  0.43961415]
+34,34,neutral,neutral,TRUE,Hurtigt overblik: Her er de vigtigste nyheder fra Finans tirsdag morgen [LINK] [LINK],[-0.96000165  0.5310793   0.42549723],[0.10594665 0.47060382 0.4234496 ]
+41,41,neutral,positive,MISS,"Aktieinvesteringer giver erhvervslivet mulighed for at vokse og skabe arbejdspladser. Det er til gavn for hele DK. Deltag og hør mere den 3. maj: ""Børsforum: Et aktiemarked for de mange - ikke for de få”. [LINK] #flerebørsnoteringer @USER @USER Cph",[-0.85971844  0.46586782  0.42673475],[0.11927031 0.44898015 0.43174952]
+43,43,neutral,neutral,TRUE,"Stor forvirring tirsdag: Men dagen sluttede med, at 95 af kantonstyrets 150 storrådsmedlemmer i Vaud vedtog en 5G-bekymret resolution, som sætter #5G på pause og afventer national miljøudredning.
+Se Tabt Tråd på Facebook.
+#dkpol #dktele #dkmedier #dkgreen [LINK]",[-0.82802546  0.480252    0.38564357],[0.12398324 0.45871258 0.41730416]
+54,54,negative,negative,TRUE,@USER @USER Birn er vel mere en Borat eller Mr. Bean?,[ 0.6056189  -0.11386625 -0.5000154 ],[0.55005383 0.26787782 0.18206832]
+59,59,neutral,negative,MISS,"@USER Bloker dem med det samme - jeg er blevet ringet op 13 dage i streg af et nummer fra Holland, der bare smækker på. 😬",[-0.8514004  0.4543366  0.401343 ],[0.12209507 0.45058063 0.42732435]
+63,63,neutral,neutral,TRUE,"@USER Nej, jeg ændrer manuelt formation inde i kampen, og så sker denne bug",[-0.7112062   0.38500613  0.32118317],[0.14704637 0.4400817  0.4128719 ]
+71,71,negative,negative,TRUE,Har tappet millioner fra varmekunder - enegikoncernen Eniig tømmer kassen inden frasalg [LINK] #dkbiz #dkpol,[ 0.35123312  0.00644016 -0.36242828],[0.4549147  0.32224655 0.22283876]
+72,72,neutral,neutral,TRUE,@USER Jeg synes at den isolationerede dækning også har medført en højredrejning af hele diskursens præmisser -&gt; [LINK],[-0.12585446  0.21378371 -0.07998353],[0.2897393  0.40692124 0.30333945]
+75,75,negative,neutral,MISS,@USER @USER @USER Jeg er tilbøjelig til at spørge dig; hvorfor?,[ 0.20100817  0.05753037 -0.29132256],[0.40362614 0.34967747 0.24669638]
+77,77,neutral,positive,MISS,"STOLT over netop at være blevet genvalgt som folketingskandidat for Radikale Venstre på Frederiksberg!
+
+Dermed vil jeg for en god ordens skyld være at finde på stemmesedlen til folketingsvalget i hele København 😉 
+@USER #fv19 [LINK]",[-0.7503785   0.39099076  0.38266686],[0.13819502 0.43269587 0.42910907]
+89,89,negative,negative,TRUE,"Hvordan spørger man en kilde: ”Er du ikke-binær?” #dkmedier 
+[LINK]",[ 0.694352   -0.13863389 -0.5625867 ],[0.5816412 0.2528681 0.1654907]
+90,90,neutral,neutral,TRUE,"@USER @USER Erkender, at han ikke har været prangende. Men forudsigelsen knytter sig nu også primært til, at han er straffesparksskytte.",[-0.45561516  0.31705567  0.11293659],[0.20278832 0.43914673 0.35806498]
+91,91,negative,positive,MISS,Er det sjovt at høre fire økonomer snakke om renter og befolkningsudvikling i 25 minutter? Det var i hvert fald sjovt at lave. Hør med her (på engelsk). #dkøko [LINK],[ 0.8588109 -0.3034332 -0.6066682],[0.64777297 0.20261268 0.14961438]
+97,97,negative,positive,MISS,Godt oprids af situationen i Algeriet her #dkpol #dkmedier #dkaid [LINK],[ 0.13451274  0.12450372 -0.24697083],[0.37412706 0.3704011  0.25547177]
+99,99,neutral,positive,MISS,@USER ærespris går i år til @USER - for at formidle forskning. Og for at have holdninger til tobak og alkohol - og for at få forebyggelse på den sundhedspolitiske dagsorden #sundpol #dkpol - tillykke [LINK],[-0.58923376  0.34605107  0.25426617],[0.17028733 0.43388173 0.3958309 ]
+100,100,negative,negative,TRUE,Steen Jakobsen (V): Skammeligt at Lars Løkke ikke lytter til sit bagland [LINK],[ 0.30312118  0.0223477  -0.34117773],[0.43855223 0.33119437 0.2302533 ]
+101,101,neutral,positive,MISS,"@USER @USER Sikkert nok, og du har ret i, at der ""altid"" er mange Brøndby-folk med i Odense. Men den fine kulisse i dag skyldes også et pænt Odense-fremmøde.",[-0.82766193  0.45035887  0.41098818],[0.12437067 0.44643208 0.42919728]
+102,102,neutral,positive,MISS,"RT @USER: Det gør vi nemlig 💚Kom og del din mening med os🤓
+#dkpol #flerevedmere [LINK]",[-0.8466547   0.44514817  0.42954817],[0.12161972 0.44261578 0.43576452]
+103,103,neutral,negative,MISS,"@USER Unægtelig en knapt så positiv agenda til den kamp. For mig er der en forskel... og så nævner jeg ikke engang, at det er mandag",[-0.7159718   0.3820537   0.34518167],[0.14518122 0.43528822 0.41953054]
+111,111,neutral,negative,MISS,"@USER Synes ikke man kan skrive det. Ligesom jeg også har det stramt med “virker til”, som rigtig mange bruger",[-0.62343264  0.33498546  0.28713015],[0.16411497 0.427941   0.40794402]
+116,116,neutral,negative,MISS,"@USER @USER Det passer ikke helt Lars, selvom man godt kunne få mistanken. Jeg lavede en lille undersøgelse igår. Kun 26% af tweets fra Venstres feed, handler om hva andre vil og gør. Det er den store lyseblå nede i højre hjørne af kagen! [LINK]",[-0.5845101   0.35378826  0.22485894],[0.17235082 0.44046476 0.38718444]
+123,123,negative,negative,TRUE,"Her giver @USER en rammende analyse af dagens pressemøde: ""Det er usædvanligt at se et pressemøde, hvor et regeringsparti bruger hele tiden på at gå til angreb på en konkurrent i stedet for at præsentere noget nyt"" [LINK] #dkpol #fv19",[ 0.97748387 -0.35181487 -0.6562014 ],[0.6849918  0.18129185 0.13371645]
+124,124,neutral,neutral,TRUE,"Grænsekontrollen forlænges igen, og igen er det med yderligere seks måneder [LINK] Den stod til at udløbe 11. maj",[-0.7034889   0.46373582  0.25637305],[0.14653306 0.47081992 0.382647  ]
+129,129,neutral,positive,MISS,"I dag kan du møde illustrator Katrine Louise Jakobsen på #skolemessen og se et værk blive til (PS: du kan også vinde det!) 
+#illustrator #skolechat [LINK]",[-0.9518331   0.50606006  0.4719034 ],[0.10582565 0.45472193 0.4394524 ]
+135,135,negative,neutral,MISS,"@USER @USER Det er et brud på karmaloven at referere til Onkel Dannys Plads.
+[LINK]
+[LINK]",[ 0.35594425  0.04109488 -0.38568583],[0.45326075 0.33083448 0.21590477]
+139,139,neutral,positive,MISS,"Semler-chef om opkøbt konkurrent: Det er Danmarks-mesteren i maskinhandel Hamrende dygtige, lyder skudsmålet fra Semler Agros direktør til Herborg Maskinforretning, som nu bliver en del af Semler Agro. [LINK]",[-0.9180523   0.518371    0.42669052],[0.11058489 0.46507877 0.4243363 ]
+140,140,neutral,positive,MISS,"Han havde mange talenter med ind i livet,men lystfiskeriet var hans største favorit. [LINK]",[-0.8454487   0.4635792   0.39250717],[0.12268238 0.45424044 0.42307717]
+143,143,neutral,neutral,TRUE,Aarhus og @USER vil sætter indskolingseleverne fri af de nationale test #skolechat #skolepol #uddpol #kompoldk [LINK],[-0.5529773   0.41569024  0.17202213],[0.17546439 0.46224898 0.3622866 ]
+146,146,neutral,negative,MISS,@USER Nooo det er bare så skidt,[-0.5056387   0.28042194  0.24447528],[0.18825391 0.41316715 0.39857894]
+151,151,negative,positive,MISS,"RT @USER: I like I like
+my girls my women
+just like l…",[ 0.49097192 -0.17268297 -0.3586753 ],[0.51479214 0.2651003  0.2201075 ]
+156,156,negative,negative,TRUE,Nationalmuseets skib skulle have været autentisk under dæk: Det bliver det ikke #sydfyn #fynsamtsavis [LINK],[ 0.26067054  0.0441591  -0.36760187],[0.42756307 0.3443265  0.22811034]
+157,157,neutral,neutral,TRUE,"""Jürgen Klopp always taught us that the problem is not losing a duel, but not covering it"".
+
+Første del af sætningen forklarer, hvorfor Matip er på holdet - anden del van Dijk.
+
+[LINK]",[-0.10621697  0.25008023 -0.11293511],[0.29228348 0.4173901  0.29032642]
+161,161,negative,negative,TRUE,"@USER Og @USER fører til brud på ministeransvarsloven?
+Hvornår holder @USER det han udtalte til @USER i 2014 da han blev spurgt ind til problemerne omkring Bødskov?
+#dkpol #dkmedier 
+[LINK]",[ 0.8300246  -0.27333352 -0.6147412 ],[0.6379355  0.21163839 0.15042603]
+164,164,positive,negative,MISS,@USER @USER Præcis... Det er jo FREDENS religion😏,[-0.5887622   0.30137536  0.30502734],[0.17007266 0.41420594 0.4157214 ]
+167,167,negative,negative,TRUE,Bla Bla Bla... Vi turde ikke sige DF imod..... Bla Bla Bla [LINK],[ 0.5841812  -0.22288753 -0.38061273],[0.54727775 0.24417563 0.20854661]
+171,171,negative,neutral,MISS,@USER Det er vel et spørgsmål om smag.,[ 0.91569656 -0.322442   -0.6183257 ],[0.66419154 0.19256467 0.14324382]
+172,172,neutral,positive,MISS,@USER @USER Måske tage med til den store fine middag næste onsdag 🤪,[-0.92885804  0.48490024  0.45938802],[0.10965882 0.45084888 0.43949223]
+173,173,neutral,neutral,TRUE,@USER @USER @USER Fløjten. Lort i fløjten. 😉,[-0.30467874  0.2305781   0.09517867],[0.23812363 0.40668824 0.3551881 ]
+177,177,negative,neutral,MISS,"Lise Kaaberbøl, politiker og husmor, kæmpede for det gode skoleliv Billund: Det er ikke de fire år som politiker, der fylder. Heller ikke arbejdslivet, der nok var spændende, og som tog en drejning undervejs. Det er familien, det hele drejer sig om. Det … [LINK]",[ 0.32253063 -0.00846932 -0.33940426],[0.44761607 0.32148018 0.23090376]
+178,178,neutral,positive,MISS,"Så nu har jeg købt et regnbueflag, som kommer med på Sydsiden på søndag!😁 🌈. Og hvis nogen har et handicap-flag, kvindeflag, jydeflag eller andet relevant, så tager jeg også gerne det med. Jeg hader næsten ingen, så længe de er Brøndbyfans! #brøndby #nejtilhomofobi",[-0.3370931   0.21073028  0.1110594 ],[0.23283419 0.40268314 0.36448267]
+191,191,neutral,negative,MISS,"Har været tidligt oppe for at tale om ekstrem internetkultur og YouTube, der ikke bare tillader, men algoritmisk kuraterer ekstremt indhold. Yderst fordelagtigt for fænomener som Paludan #dkmedier #DKpol @USER [LINK]",[-0.59191275  0.39370131  0.18252446],[0.17097443 0.45811862 0.370907  ]
+195,195,neutral,neutral,TRUE,"HK Sydjylland søger en eventkoordinator elev Vi forestiller os, at du har afsluttet dit grundforløb på en erhvervsskole, og nu er klar til at omsætte dine opnåede færdigheder til tænkning og løsning? følg linket og læs mere om den... [LINK]",[-0.93387413  0.48281217  0.44725332],[0.10985608 0.45298424 0.4371597 ]
+197,197,neutral,neutral,TRUE,"@USER @USER @USER Jeg tror, at Solbakken vil kæmpe hårdt for at få den rigtige mand, så jeg ved ikke, hvis det glipper med Mudrazija. Men i sommerens vindue prøvede FCK jo med Tibbling på sidste dag. Så det var ikke rigtig et klart svar desværre.",[-0.7574383   0.4002316   0.36057395],[0.1380972  0.43949556 0.4224073 ]
+199,199,neutral,positive,MISS,"Så er vi i gang med årets repræsentantskabsmøde hos @USER, hvor præsident @USER holder beretningen i selskab med mange hundrede dedikerede grønne ildsjæle. Hovedbudskabet er vigtigere end nogensinde før: Giv naturen plads! #dkgreen #dkpol [LINK]",[-0.50788397  0.34165418  0.20942643],[0.18561548 0.43407416 0.3803104 ]
+211,211,neutral,positive,MISS,"Robert Smith teaser flere detaljer om nyt The Cure-album: »Det er fucking fantastisk«
+
+Roskilde Festivaler-hovednavnet The Cure fik i weekenden en hæder af de helt store, da de blev tildelt en plads i ’Rock &amp; Roll Hall of Fame’, og frontmand Robert Smith… [LINK]",[-0.9567269   0.5053286   0.46655133],[0.10564656 0.45584577 0.43850765]
+222,222,negative,neutral,MISS,@USER @USER @USER @USER @USER @USER @USER @USER Og i det hele taget for hvilke personoplysninger der kan databehandles uden samtykke (deling er kun én form for behandling),[ 0.71529484 -0.21280107 -0.52981853],[0.59410155 0.23485172 0.17104675]
+233,233,neutral,neutral,TRUE,"@USER Kører selv til Roskilde engang om måneden med min datter selv om vi bor i Horsens, fordi jeg ved at det er der hun får den bedste behandling.",[-0.8367166   0.46366414  0.35324448],[0.12566529 0.46127883 0.41305596]
+238,238,negative,neutral,MISS,@USER @USER @USER @USER @USER @USER @USER Og læste du ikke Niggli et al?,[ 0.66862786 -0.17595358 -0.51210856],[0.57577497 0.24743192 0.17679314]
+242,242,neutral,positive,MISS,"En kanalbåd er lige sejlet forbi, manden der nægter at komme op. Bådens guide tager den cool med et “anyways” og begynder at fortælle om Christianborgs historie #dkpol [LINK]",[-0.6836179   0.41318044  0.26585823],[0.15200067 0.45517558 0.39282373]
+244,244,negative,neutral,MISS,"Ordnørder. Hjælp lige. Kan man godt skrive: ""I vækker håb""? Kan ikke finde nogen eksempler. #twitterhjerne",[ 0.8418087  -0.30265933 -0.5497393 ],[0.6381282  0.2031757  0.15869613]
