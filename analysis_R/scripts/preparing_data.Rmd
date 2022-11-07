@@ -1,0 +1,59 @@
+---
+title: "re-calculating data"
+author: "Niels Krogsgaard"
+date: "11/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse)
+```
+
+```{r}
+path <- paste("../data/df_classification_report", 0, ".csv", sep = "")
+df <- read_csv(path)
+df$run <- 0
+df$model <- "electra-danish"
+
+for (i in 1:9) {
+  path <- paste("../data/df_classification_report", i, ".csv", sep = "")
+  df_temp <- read_csv(path)
+  df_temp$run <- i
+  df_temp$model <- "electra-danish"
+  df <- rbind(df, df_temp)
+}
+```
+
+```{r}
+df$mis_binary <- ifelse(df$Misclassification == "TRUE", 1, 0)
+
+# df$positive_pred <- ifelse(df$`Predicted Labels` == "positive", 1, 0)
+# df$neutral_pred <- ifelse(df$`Predicted Labels` == "neutral", 1, 0)
+# df$negative_pred <- ifelse(df$`Predicted Labels` == "negative", 1, 0)
+# 
+# df %>% 
+#   group_by(run) %>%
+#   summarise("over_all_error_rate" = mean(mis_binary), "count" = n(), "precision_pos" = sum(ifelse((positive_pred == 1) & (mis_binary == 1), 1, 0))/sum(positive_pred), "precision_neu" = sum(ifelse((neutral_pred == 1) & (mis_binary == 1), 1, 0))/sum(neutral_pred), "precision_neg" = sum(ifelse((negative_pred == 1) & (mis_binary == 1), 1, 0))/sum(negative_pred))
+
+df %>% 
+  group_by(run) %>% 
+  summarise("over_all_error_rate" = mean(mis_binary))
+
+df %>% 
+  group_by(...1) %>% 
+  summarise("within_tweet_error_rate" = mean(mis_binary)) %>% 
+  ggplot(aes(x = within_tweet_error_rate)) + 
+  geom_histogram() +
+  ggtitle(label = "Are predictions different within model?", subtitle = "0 is always predicted wrong, 1 is always predicted correct, everything in between varies between instances of Ælæctra")
+```
+
+
+
+
+
+
+

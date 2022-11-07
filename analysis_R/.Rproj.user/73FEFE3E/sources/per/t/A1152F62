@@ -1,0 +1,28 @@
+{
+    "id": "A1152F62",
+    "path": "~/OneDrive/Cognitive_Science/5th_Semester/bachelor_thesis/analysis/scripts/preparing_data.Rmd",
+    "project_path": "scripts/preparing_data.Rmd",
+    "type": "r_markdown",
+    "hash": "4192782645",
+    "contents": "",
+    "dirty": false,
+    "created": 1667824299003.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "25,9",
+        "scrollLine": "14",
+        "last_setup_crc32": "E9175BC5bb338d19"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1667824279,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1667824279,
+    "read_only": false,
+    "read_only_alternatives": []
+}
