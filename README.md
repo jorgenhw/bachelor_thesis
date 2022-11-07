@@ -1,2 +1,3 @@
-# bachelor_thesis
-Bachelor thesis Cognitive Science
+# Stratified Evaluation
+### *Bachelor thesis Cognitive Science*
+### Aarhus University
