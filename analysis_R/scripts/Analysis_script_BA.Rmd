@@ -71,15 +71,15 @@ topic_classf %>%
   summarise("error_rates_per_topic_relative_to_overall_error_rate_pr_topic" = error_rate_per_topic_across_runs - mean(topic_classf$MISS_binary))
 ```
 
-
-
-###
+### Error rates per run for each topic
 ```{r}
+topic_classf %>% 
+  group_by(run, new_topic) %>% 
+  summarise("error_rate_per_run_across_all_topics" = mean(MISS_binary)) #%>% 
+  #summarise("error_rate_per_topic_subtracted_from_error_rate_across_all_topics_per_run" =  - error_rate_per_run_across_all_topics)
 
 ```
 
-
-Belyse den enkelte model bedre end til at sammenligne modeller
 
 
 
