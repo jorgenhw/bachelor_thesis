@@ -54,9 +54,15 @@ classf_report_jonf %>%
 topic_classf <- merge(classf_report_jonf,topics, by = "Text", all.x = T, all.y = F) %>% 
   rename(run = filename) %>% 
   select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf <- topic_classf[complete.cases(topic_classf), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
 
+# Seeing how many topics are in each category after merging
+topic_classf %>% 
+  ggplot(aes(new_topic, fill = run)) +
+  geom_bar()+
+  labs(title = "Number of entries per topic after merging with classification report", subtitle = "NB: Divide y-axis by 10")
 
-
+# Error rates per topic across runs
 topic_classf %>% 
   group_by(new_topic, run) %>% 
   summarise("error_rate_per_run" = mean(MISS_binary)) %>% 
@@ -82,10 +88,13 @@ topic_classf %>%
 
 # Visualizations
 ```{r}
-
+topic_classf %>% 
+  group_by(new_topic) %>% 
+  summarise("average_error" = mean(MISS_binary)) %>% 
+  ggplot(aes(x = new_topic, y = average_error))+
+  geom_point() +
+  ggtitle("Box Plot")
 
 
 ```
-
-
 
