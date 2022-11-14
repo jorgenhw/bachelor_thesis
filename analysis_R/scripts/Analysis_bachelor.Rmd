@@ -140,28 +140,6 @@ names(classification_report_jondf)
 length(unique(topics$Text))
 ```
 
-```{r}
-df <- read_csv("https://raw.githubusercontent.com/jorgenhw/bachelor_data/main/angry_tweetes_mini.csv")
-
-length(unique(df$text))
-```
-
-
-### vestinn/ScandiBERT
-
-```{r}
-pacman::p_load(vroom)
-
-datadir<-"/Users/wibe/Desktop/vestinn:ScandiBERT/class_reports"
-
-files <- list.files(datadir,pattern='*.csv',full.names=TRUE)
-
-df <- vroom(files)
-
-```
-
-
-
 
 
 

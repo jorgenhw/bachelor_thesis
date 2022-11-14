@@ -1,5 +1,7 @@
 ---
 title: "Analysis_script_BA"
+subtitle: "Bachelor thesis"
+author: "Jørgen Højlund Wibe"
 output: html_document
 ---
 
@@ -22,9 +24,8 @@ classf_report_jonf <- list.files(path = "../data/jonfd_electra-small-nordic", pa
     map_df(~read_plus(.))
 
 # Topics (= topics)
-topics <- read_csv("../data/BerTopic/sub_groups_07112022.csv") %>% 
-  rename(Text = original_tweet) %>% 
-  distinct(Text, .keep_all = TRUE) # remove duplicate rows
+topics <- read_csv("../data/BerTopic/sub_groups_14112022.csv") %>% 
+  rename(Text = original_tweet) 
 ```
 
 # Calculating error rates
@@ -43,17 +44,17 @@ classf_report_jonf %>%
 ### Overall error rate over all runs
 ```{r}
 #Overall error rate
-mean_overall <- classf_report_jonf %>% 
+classf_report_jonf %>% 
   summarise("over_all_error_rate" = mean(MISS_binary))
 ```
 
 ### Error rates per topic across runs
 ```{r}
 # Merging topics with classification report and minimizing df
-topic_classf <- merge(classf_report_jonf, topics, by = "Text", all.x = T, all.y = F) %>% 
+topic_classf <- merge(classf_report_jonf,topics, by = "Text", all.x = T, all.y = F) %>% 
   rename(run = filename) %>% 
   select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
-topic_classf <- topic_classf[complete.cases(topic_classf), ] # remove NA rows (REMEMBER DELETE THIS)
+
 
 
 topic_classf %>% 
@@ -77,9 +78,14 @@ topic_classf %>%
   group_by(run, new_topic) %>% 
   summarise("error_rate_per_run_across_all_topics" = mean(MISS_binary)) #%>% 
   #summarise("error_rate_per_topic_subtracted_from_error_rate_across_all_topics_per_run" =  - error_rate_per_run_across_all_topics)
-
 ```
 
+# Visualizations
+```{r}
+
+
+
+```
 
 
 
