@@ -1,0 +1,73 @@
+---
+title: "Analysis_script_BA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse)
+```
+
+# Loading data
+```{r}
+# Classification report (= classf_report_jonf)
+read_plus <- function(flnm) {
+    read_csv(flnm) %>% 
+        mutate(filename = flnm)
+}
+classf_report_jonf <- list.files(path = "/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/jonfd_electra-small-nordic", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+
+# Topics (= topics)
+topics <- read_csv("/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/BerTopic/sub_groups_07112022.csv") %>% 
+  rename(Text = original_tweet) %>% 
+  distinct(Text, .keep_all = TRUE) # remove duplicate rows
+```
+
+# Calculating error rates
+```{r}
+# Creating a numeric variable for miss/true
+classf_report_jonf['MISS_binary'] <- ifelse(classf_report_jonf$Misclassification == "TRUE", 1, 0)
+```
+
+### Overall error rate pr run
+```{r}
+classf_report_jonf %>% 
+  group_by(filename) %>% 
+  summarise("error_rate_per_run" = mean(MISS_binary))
+```
+
+### Overall error rate over all runs
+```{r}
+#Overall error rate
+mean_overall <- classf_report_jonf %>% 
+  summarise("over_all_error_rate" = mean(MISS_binary))
+```
+
+### Error rates per topic across runs
+```{r}
+# Merging topics with classification report and minimizing df
+topic_classf <- merge(classf_report_jonf, topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf <- topic_classf[complete.cases(topic_classf), ] # remove NA rows (REMEMBER DELETE THIS)
+
+
+topic_classf %>% 
+  group_by(new_topic, run) %>% 
+  summarise("error_rate_per_run" = mean(MISS_binary)) %>% 
+  summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run))
+```
+
+### Error rates per topic per run subtracted from overall error rate per topic
+```{r}
+topic_classf %>% 
+  group_by(new_topic, run) %>% 
+  summarise("error_rate_per_run" = mean(MISS_binary)) %>% 
+  summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run)) %>% 
+  summarise("error_rates_per_topic_relative_to_overall_error_rate_pr_topic" = error_rate_per_topic_across_runs - mean(topic_classf$MISS_binary))
+```
+
+
