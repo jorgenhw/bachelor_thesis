@@ -3,6 +3,7 @@ title: "Analysis_script_BA"
 output: html_document
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -16,12 +17,12 @@ read_plus <- function(flnm) {
     read_csv(flnm) %>% 
         mutate(filename = flnm)
 }
-classf_report_jonf <- list.files(path = "/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/jonfd_electra-small-nordic", pattern = "*.csv", 
+classf_report_jonf <- list.files(path = "../data/jonfd_electra-small-nordic", pattern = "*.csv", 
                full.names = T) %>% 
     map_df(~read_plus(.))
 
 # Topics (= topics)
-topics <- read_csv("/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/BerTopic/sub_groups_07112022.csv") %>% 
+topics <- read_csv("../data/BerTopic/sub_groups_07112022.csv") %>% 
   rename(Text = original_tweet) %>% 
   distinct(Text, .keep_all = TRUE) # remove duplicate rows
 ```
@@ -61,7 +62,7 @@ topic_classf %>%
   summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run))
 ```
 
-### Error rates per topic per run subtracted from overall error rate per topic
+### Error rates per topic per run subtracted from overall error rate per topic across all runs
 ```{r}
 topic_classf %>% 
   group_by(new_topic, run) %>% 
@@ -69,5 +70,16 @@ topic_classf %>%
   summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run)) %>% 
   summarise("error_rates_per_topic_relative_to_overall_error_rate_pr_topic" = error_rate_per_topic_across_runs - mean(topic_classf$MISS_binary))
 ```
+
+
+
+###
+```{r}
+
+```
+
+
+Belyse den enkelte model bedre end til at sammenligne modeller
+
 
 
