@@ -84,8 +84,6 @@ tress <- merge(uno, dos, by ="run", all.x = T, all.y = F)
 quatro <- tress %>% 
   mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
 
-length(quatro$run)
-
 
 topic_classf %>% 
   group_by(new_topic, run) %>% 
@@ -118,10 +116,6 @@ topic_classf %>%
 
 # bays
 
-```{r}
-library(devtools)
-```
-
 
 ```{r}
 singo <- quatro %>% 
@@ -137,30 +131,36 @@ singosingo$model_ = 2
 twomodels <- rbind(singo, singosingo)
 
 twomodels_uno <- twomodels %>% 
-  select(diff, model)
+  select(diff, model_)
 
-write.csv(twomodels_uno,"twomodels_uno.csv")
-?write.csv()
+#write.csv(twomodels_uno,"twomodels_uno.csv")
 
-twomodels_uno$model <- as.factor(twomodels_uno$model)
-
-twodosmodellist <- list(
-  diff = twomodels_uno$diff,
-  model = twomodels_uno$model)
-
+#twomodels_uno$model <- as.factor(twomodels_uno$model)
 
 library(rethinking)
+
 m1 <- ulam(
     alist(
         diff ~ dnorm(mu, sigma),
-        mu <- a[model],
-        a[model] ~ dnorm(0.40, 0.15) ,
+        mu <- a[model_],
+        a[model_] ~ dnorm(0.40, 0.15) ,
         sigma ~ dexp(2) 
     ), data = twomodels_uno, chains = 4)
 
-precis(m1)
+precis(m1, depth =2)
 plot(coeftab(m1),by.model=TRUE)
+```
+
+
+```{r}
+
+
 
 ```
+
+
+
+
+
 
 

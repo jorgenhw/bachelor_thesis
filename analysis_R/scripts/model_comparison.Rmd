@@ -1,0 +1,160 @@
+---
+title: "Model comparison"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,devtools,rethinking)
+```
+
+# LOADING DATA
+
+```{r}
+######## LOADING CLASSIFICATION REPORT #################
+
+# Function for loading multiple files
+read_plus <- function(flnm) {
+    read_csv(flnm) %>% 
+        mutate(filename = flnm)
+}
+
+# jonfd_electra-small-nordic
+classf_report_jonf <- list.files(path = "../data/jonfd_electra-small-nordic", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_jonf['MISS_binary'] <- ifelse(classf_report_jonf$Misclassification == "TRUE", 1, 0) 
+
+# vestinn/ScandiBERT
+classf_report_vestin <- list.files(path = "../data/vestinn_ScandiBERT", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_vestin['MISS_binary'] <- ifelse(classf_report_vestin$Misclassification == "TRUE", 1, 0) 
+
+# aelectra
+classf_report_aelectra <- list.files(path = "../data/aelectra", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_aelectra['MISS_binary'] <- ifelse(classf_report_aelectra$Misclassification == "TRUE", 1, 0) 
+
+# xlm-roberta-base
+classf_report_XLM_base <- list.files(path = "../data/xlm-roberta-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_base['MISS_binary'] <- ifelse(classf_report_XLM_base$Misclassification == "TRUE", 1, 0)
+
+# xlm_roberta_large
+classf_report_XLM_large <- list.files(path = "../data/xlm_roberta_large", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_large['MISS_binary'] <- ifelse(classf_report_XLM_large$Misclassification == "TRUE", 1, 0)
+
+########## LOADING TOPICS ###############
+topics <- read_csv("../data/BerTopic/sub_groups_14112022.csv") %>% 
+  rename(Text = original_tweet) 
+```
+
+
+# MERGING CLASSIFICATION REPORTS WITH TOPICS
+```{r}
+# JONF: Merging topics with classification report and minimizing df 
+topic_classf_JONF <- merge(classf_report_jonf,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_JONF <- topic_classf_JONF[complete.cases(topic_classf_JONF), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+topic_classf_JONF$model_ <- 2
+
+# SCANDIBERT: Merging topics with classification report and minimizing df 
+topic_classf_SCANDIBERT <- merge(classf_report_vestin,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_SCANDIBERT <- topic_classf_SCANDIBERT[complete.cases(topic_classf_SCANDIBERT), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+topic_classf_SCANDIBERT$model_ <- 2
+
+# AELECTRA: Merging topics with classification report and minimizing df 
+topic_classf_AELECTRA <- merge(classf_report_aelectra,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_AELECTRA <- topic_classf_AELECTRA[complete.cases(topic_classf_AELECTRA), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+topic_classf_AELECTRA$model_ <- 3
+
+# XLM_BASE: Merging topics with classification report and minimizing df 
+topic_classf_XLM_BASE <- merge(classf_report_XLM_base,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_XLM_BASE <- topic_classf_XLM_BASE[complete.cases(topic_classf_XLM_BASE), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+topic_classf_XLM_BASE$model_ <- 4
+
+# XLM_LARGE: Merging topics with classification report and minimizing df 
+topic_classf_XLM_LARGE <- merge(classf_report_XLM_large,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_XLM_LARGE <- topic_classf_XLM_LARGE[complete.cases(topic_classf_XLM_LARGE), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+topic_classf_XLM_LARGE$model_ <- 5
+
+# combining
+all_models <- rbind(topic_classf_XLM_LARGE, topic_classf_XLM_BASE, topic_classf_AELECTRA, topic_classf_SCANDIBERT, topic_classf_JONF)
+```
+
+# GETTING ERROR RATES FOR EACH MODEL
+```{r}
+error_rate_per_run_per_topic <- all_models %>% 
+  group_by(new_topic, run, model_) %>% 
+  summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+
+error_rate_per_run_across_topics <- all_models %>% 
+  group_by(run, model_) %>% 
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+tress <- merge(error_rate_per_run_per_topic, error_rate_per_run_across_topics, by = "run", all.x = T, all.y = F)
+
+quatro <- tress %>% 
+  mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
+
+
+# uno <- topic_classf %>% 
+#   group_by(new_topic, run) %>% 
+#   summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+# 
+# dos <- topic_classf %>% 
+#   group_by(run) %>% 
+#   summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+# 
+# tress <- merge(uno, dos, by ="run", all.x = T, all.y = F)
+# 
+# quatro <- tress %>% 
+#   mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
+
+singo <- quatro %>% 
+  filter(new_topic==3)
+
+
+final <- singo %>% 
+  rename(ourmodel = `model_.x`) %>% 
+  rename(niels = diff) %>% 
+  select(niels, ourmodel)
+
+m1 <- ulam(
+    alist(
+        niels ~ dnorm(mu, sigma),
+        mu <- a[ourmodel],
+        a[ourmodel] ~ dnorm(0.40, 0.15) ,
+        sigma ~ dexp(2) 
+    ), data = final, chains = 4, cores = 4)
+
+precis(m1, depth =2)
+plot(coeftab(m1),by.model=TRUE)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
