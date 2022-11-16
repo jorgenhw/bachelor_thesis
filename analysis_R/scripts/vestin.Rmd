@@ -1,0 +1,108 @@
+---
+title: "Analysis_script_BA"
+subtitle: "Bachelor thesis"
+author: "Jørgen Højlund Wibe"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse)
+```
+
+# Loading data
+```{r}
+# Classification report (= classf_report_jonf)
+read_plus <- function(flnm) {
+    read_csv(flnm) %>% 
+        mutate(filename = flnm)
+}
+
+classf_report_vestin <- list.files(path = "/Users/wibe/Desktop/CogSci/Bachelor thesis/bachelor_thesis/analysis_R/data/vestinn:ScandiBERT", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+
+
+# Topics (= topics)
+topics <- read_csv("../data/BerTopic/sub_groups_14112022.csv") %>% 
+  rename(Text = original_tweet) 
+```
+
+# Calculating error rates
+```{r}
+# Creating a numeric variable for miss/true
+classf_report_vestin['MISS_binary'] <- ifelse(classf_report_jonf$Misclassification == "TRUE", 1, 0)
+```
+
+### Overall error rate pr run
+```{r}
+classf_report_vestin %>% 
+  group_by(filename) %>% 
+  summarise("error_rate_per_run" = mean(MISS_binary))
+```
+
+### Overall error rate over all runs
+```{r}
+#Overall error rate
+classf_report_vestin %>% 
+  summarise("over_all_error_rate" = mean(MISS_binary))
+```
+
+### Error rates per topic across runs
+```{r}
+# Merging topics with classification report and minimizing df
+topic_classf_vestin <- merge(classf_report_jonf,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
+topic_classf_vestin <- topic_classf_vestin[complete.cases(topic_classf_vestin), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+
+# Seeing how many topics are in each category after merging
+topic_classf %>% 
+  ggplot(aes(new_topic, fill = run)) +
+  geom_bar()+
+  labs(title = "Number of entries per topic after merging with classification report", subtitle = "NB: Divide y-axis by 10")
+
+# Error rates per topic across runs
+topic_classf %>% 
+  group_by(new_topic, run) %>% 
+  summarise("error_rate_per_run" = mean(MISS_binary)) %>% 
+  summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run))
+```
+
+### Error rates per topic per run subtracted from overall error rate per topic across all runs
+```{r}
+unouno <- topic_classf_vestin %>% 
+  group_by(new_topic, run) %>% 
+  summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+
+dosdos <- topic_classf_vestin %>% 
+  group_by(run) %>% 
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+tresstress <- merge(uno, dos, by ="run", all.x = T, all.y = F)
+
+quatroquatro <- tress %>% 
+  mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
+
+
+```
+
+### Error rates per run for each topic
+```{r}
+topic_classf %>% 
+  group_by(run, new_topic) %>% 
+  summarise("error_rate_per_run_across_all_topics" = mean(MISS_binary)) 
+```
+
+# Visualizations
+```{r}
+topic_classf %>% 
+  group_by(new_topic) %>% 
+  summarise("average_error" = mean(MISS_binary)) %>% 
+  ggplot(aes(x = new_topic, y = average_error))+
+  geom_point() +
+  ggtitle("Box Plot")
+```
+

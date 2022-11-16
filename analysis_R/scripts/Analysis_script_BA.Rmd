@@ -71,19 +71,36 @@ topic_classf %>%
 
 ### Error rates per topic per run subtracted from overall error rate per topic across all runs
 ```{r}
+uno <- topic_classf %>% 
+  group_by(new_topic, run) %>% 
+  summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+
+dos <- topic_classf %>% 
+  group_by(run) %>% 
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+tress <- merge(uno, dos, by ="run", all.x = T, all.y = F)
+
+quatro <- tress %>% 
+  mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
+
+length(quatro$run)
+
+
 topic_classf %>% 
   group_by(new_topic, run) %>% 
   summarise("error_rate_per_run" = mean(MISS_binary)) %>% 
-  summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run)) %>% 
-  summarise("error_rates_per_topic_relative_to_overall_error_rate_pr_topic" = error_rate_per_topic_across_runs - mean(topic_classf$MISS_binary))
+  ungroup(new_topic, run) %>% 
+  group_by(run) %>% 
+  summarise("error_rate_per_topic_across_runs" = mean(error_rate_per_run))
+  #summarise("error_rates_per_topic_relative_to_overall_error_rate_pr_topic" = error_rate_per_topic_across_runs - mean(topic_classf$MISS_binary))
 ```
 
 ### Error rates per run for each topic
 ```{r}
 topic_classf %>% 
   group_by(run, new_topic) %>% 
-  summarise("error_rate_per_run_across_all_topics" = mean(MISS_binary)) #%>% 
-  #summarise("error_rate_per_topic_subtracted_from_error_rate_across_all_topics_per_run" =  - error_rate_per_run_across_all_topics)
+  summarise("error_rate_per_run_across_all_topics" = mean(MISS_binary)) 
 ```
 
 # Visualizations
@@ -94,7 +111,56 @@ topic_classf %>%
   ggplot(aes(x = new_topic, y = average_error))+
   geom_point() +
   ggtitle("Box Plot")
+```
 
+
+
+
+# bays
+
+```{r}
+library(devtools)
+```
+
+
+```{r}
+singo <- quatro %>% 
+  filter(new_topic==3)
+
+singo$model_ = 1
+
+singosingo <- quatroquatro %>% 
+  filter(new_topic == 3)
+
+singosingo$model_ = 2
+
+twomodels <- rbind(singo, singosingo)
+
+twomodels_uno <- twomodels %>% 
+  select(diff, model)
+
+write.csv(twomodels_uno,"twomodels_uno.csv")
+?write.csv()
+
+twomodels_uno$model <- as.factor(twomodels_uno$model)
+
+twodosmodellist <- list(
+  diff = twomodels_uno$diff,
+  model = twomodels_uno$model)
+
+
+library(rethinking)
+m1 <- ulam(
+    alist(
+        diff ~ dnorm(mu, sigma),
+        mu <- a[model],
+        a[model] ~ dnorm(0.40, 0.15) ,
+        sigma ~ dexp(2) 
+    ), data = twomodels_uno, chains = 4)
+
+precis(m1)
+plot(coeftab(m1),by.model=TRUE)
 
 ```
+
 
