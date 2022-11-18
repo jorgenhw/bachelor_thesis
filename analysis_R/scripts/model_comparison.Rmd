@@ -112,7 +112,7 @@ quatro <- tress %>%
   mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
 
 singo <- quatro %>% 
-  filter(new_topic==3) %>% 
+  #filter(new_topic==3) %>% 
   rename(ourmodel = `model_.x`) %>% 
   rename(difference = diff) %>% 
   select(run, new_topic, ourmodel,difference)
@@ -125,22 +125,25 @@ final <- singo %>%
 final <-  singo %>% 
   select(ourmodel,difference, new_topic)
 
-head(final)
-
-out <- list()
-
-for (i in unique(singo$new_topic)) {
-  i <- ulam(
+func_TEMP <- function(topic){
+  func_df <- final %>% 
+    filter(new_topic == topic)
+  
+  func_model <- ulam(
     alist(
         difference ~ dnorm(mu, sigma),
         mu <- a[ourmodel],
         a[ourmodel] ~ dnorm(0.40, 0.15) ,
         sigma ~ dexp(2) 
-    ), data = final, chains = 4, cores = 4)
-  out[i] <- precis(i, depth = 2)
+    ), data = func_df, chains = 4, cores = 4)
+  
+  func_precis <- precis(temp, depth = 2)
+  
+  return(temp_precis)
 }
 
-out
+list_precis <- lapply(list(3,4), func_TEMP)
+
 
 ###### MODEL #######
 m1 <- ulam(
