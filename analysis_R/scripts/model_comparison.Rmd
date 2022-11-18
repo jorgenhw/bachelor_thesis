@@ -62,7 +62,7 @@ topic_classf_JONF <- merge(classf_report_jonf,topics, by = "Text", all.x = T, al
   rename(run = filename) %>% 
   select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run)
 topic_classf_JONF <- topic_classf_JONF[complete.cases(topic_classf_JONF), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
-topic_classf_JONF$model_ <- 2
+topic_classf_JONF$model_ <- 1
 
 # SCANDIBERT: Merging topics with classification report and minimizing df 
 topic_classf_SCANDIBERT <- merge(classf_report_vestin,topics, by = "Text", all.x = T, all.y = F) %>% 
@@ -111,29 +111,38 @@ tress <- merge(error_rate_per_run_per_topic, error_rate_per_run_across_topics, b
 quatro <- tress %>% 
   mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
 
-
-# uno <- topic_classf %>% 
-#   group_by(new_topic, run) %>% 
-#   summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
-# 
-# dos <- topic_classf %>% 
-#   group_by(run) %>% 
-#   summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
-# 
-# tress <- merge(uno, dos, by ="run", all.x = T, all.y = F)
-# 
-# quatro <- tress %>% 
-#   mutate(diff = error_rate_per_run_per_topic - error_rate_per_run_across_topics)
-
 singo <- quatro %>% 
-  filter(new_topic==3)
-
+  filter(new_topic==3) %>% 
+  rename(ourmodel = `model_.x`) %>% 
+  rename(difference = diff) %>% 
+  select(run, new_topic, ourmodel,difference)
 
 final <- singo %>% 
-  rename(ourmodel = `model_.x`) %>% 
-  rename(niels = diff) %>% 
-  select(niels, ourmodel)
+  select(difference, ourmodel)
+```
 
+```{r}
+final <-  singo %>% 
+  select(ourmodel,difference, new_topic)
+
+head(final)
+
+out <- list()
+
+for (i in unique(singo$new_topic)) {
+  i <- ulam(
+    alist(
+        difference ~ dnorm(mu, sigma),
+        mu <- a[ourmodel],
+        a[ourmodel] ~ dnorm(0.40, 0.15) ,
+        sigma ~ dexp(2) 
+    ), data = final, chains = 4, cores = 4)
+  out[i] <- precis(i, depth = 2)
+}
+
+out
+
+###### MODEL #######
 m1 <- ulam(
     alist(
         niels ~ dnorm(mu, sigma),
@@ -145,7 +154,18 @@ m1 <- ulam(
 precis(m1, depth =2)
 plot(coeftab(m1),by.model=TRUE)
 
+
 ```
+
+
+
+
+
+
+
+
+
+
 
 
 
