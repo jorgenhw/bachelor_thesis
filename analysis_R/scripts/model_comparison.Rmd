@@ -117,11 +117,32 @@ singo <- quatro %>%
   rename(difference = diff) %>% 
   select(run, new_topic, ourmodel,difference)
 
-singo
 
 
 
 ```
+
+```{r}
+#Basic boxplot
+singo %>% 
+  filter(new_topic == -1) %>% 
+  ggplot(aes(difference))+
+  geom_boxplot(width = .5)+
+  facet_grid(. ~ ourmodel)
+
+ggplot(df, aes(x=gender, y=sound_level_pref))+
+  geom_boxplot(width = 0.5) +
+  ggtitle("Box Plot")
+
+#E.g. boxplot with layers
+ggplot(df, aes(x=gender, y=sound_level_pref , fill=gender))+
+  geom_boxplot(width = 0.5) +
+  ggtitle("Box Plot") +
+  stat_summary(fun = mean, geom = "point", shape = 23, colour = "Black") + 
+  geom_errorbar(stat = 'summary', fun.data = mean_se, width = 0.5)
+
+```
+
 
 ```{r}
 final <-  singo %>% 
