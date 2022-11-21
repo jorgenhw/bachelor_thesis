@@ -117,14 +117,57 @@ singo <- quatro %>%
   rename(difference = diff) %>% 
   select(run, new_topic, ourmodel,difference)
 
-final <- singo %>% 
-  select(difference, ourmodel)
+singo
+
+
+
 ```
 
 ```{r}
 final <-  singo %>% 
   select(ourmodel,difference, new_topic)
 
+out <- vector("list", length = length(unique(final$new_topic)))
+mod <- vector("list", length = length(unique(final$ourmodel)))
+
+for (i in 1:length(unique(final$new_topic))) {
+  j <- ulam(
+    alist(
+        difference ~ dnorm(mu, sigma),
+        mu <- a[ourmodel],
+        a[ourmodel] ~ dnorm(0.40, 0.15) ,
+        sigma ~ dexp(2) 
+    ), data = final, chains = 4, cores = 4)
+  mod[[i]] <- j
+  out[[i]] <- precis(j, depth = 2)
+}
+
+out
+
+precis(mod[1])
+
+plot(coeftab(mod[2]),by.model=TRUE)
+
+
+
+mod[1]
+mod[2]
+f <- mod[3]
+f
+
+ #extracting priors
+#prior_model3<- extract.prior(mod[1], refresh = 0)
+
+#mod[1]
+
+```
+
+
+
+
+
+```{r}
+###########################
 func_TEMP <- function(topic){
   func_df <- final %>% 
     filter(new_topic == topic)
@@ -137,46 +180,16 @@ func_TEMP <- function(topic){
         sigma ~ dexp(2) 
     ), data = func_df, chains = 4, cores = 4)
   
-  func_precis <- precis(temp, depth = 2)
+  func_precis <- precis(func_model, depth = 2)
   
-  return(temp_precis)
+  return(func_precis)
 }
 
 list_precis <- lapply(list(3,4), func_TEMP)
 
-
-###### MODEL #######
-m1 <- ulam(
-    alist(
-        niels ~ dnorm(mu, sigma),
-        mu <- a[ourmodel],
-        a[ourmodel] ~ dnorm(0.40, 0.15) ,
-        sigma ~ dexp(2) 
-    ), data = final, chains = 4, cores = 4)
-
-precis(m1, depth =2)
-plot(coeftab(m1),by.model=TRUE)
-
-
+list_precis
+#############################
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
