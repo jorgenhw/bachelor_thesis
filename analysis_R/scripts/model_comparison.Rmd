@@ -101,12 +101,12 @@ all_models_w_topics <- all_models_w_topics[complete.cases(all_models_w_topics), 
 
 # GETTING ERROR RATES FOR EACH MODEL
 ```{r}
-error_rate_per_run_per_topic <- all_models %>% 
-  group_by(new_topic, run, model_) %>% 
+error_rate_per_run_per_topic <- all_models_w_topics %>% 
+  group_by(new_topic, run, model) %>% 
   summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
 
-error_rate_per_run_across_topics <- all_models %>% 
-  group_by(run, model_) %>% 
+error_rate_per_run_across_topics <- all_models_w_topics %>% 
+  group_by(run, model) %>% 
   summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
 
 tress <- merge(error_rate_per_run_per_topic, error_rate_per_run_across_topics, by = "run", all.x = T, all.y = F)
@@ -116,7 +116,7 @@ quatro <- tress %>%
 
 singo <- quatro %>% 
   #filter(new_topic==3) %>% 
-  rename(ourmodel = `model_.x`) %>% 
+  rename(ourmodel = `model.x`) %>% 
   rename(difference = diff) %>% 
   select(run, new_topic, ourmodel,difference)
 
