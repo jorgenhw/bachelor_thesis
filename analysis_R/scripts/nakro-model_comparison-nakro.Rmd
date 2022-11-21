@@ -202,12 +202,40 @@ post$diff_12 <- post$a[,1] - post$a[,2]
 post$diff_13 <- post$a[,1] - post$a[,3]
 post$diff_14 <- post$a[,1] - post$a[,4]
 post$diff_15 <- post$a[,1] - post$a[,5]
+post$diff_16 <- post$a[,1] - post$a[,6]
+post$diff_17 <- post$a[,1] - post$a[,7]
+post$diff_18 <- post$a[,1] - post$a[,8]
+post$diff_19 <- post$a[,1] - post$a[,9]
 post$diff_23 <- post$a[,2] - post$a[,3]
 post$diff_24 <- post$a[,2] - post$a[,4]
 post$diff_25 <- post$a[,2] - post$a[,5]
+post$diff_26 <- post$a[,2] - post$a[,6]
+post$diff_27 <- post$a[,2] - post$a[,7]
+post$diff_28 <- post$a[,2] - post$a[,8]
+post$diff_29 <- post$a[,2] - post$a[,9]
 post$diff_34 <- post$a[,3] - post$a[,4]
 post$diff_35 <- post$a[,3] - post$a[,5]
+post$diff_36 <- post$a[,3] - post$a[,6]
+post$diff_37 <- post$a[,3] - post$a[,7]
+post$diff_38 <- post$a[,3] - post$a[,8]
+post$diff_39 <- post$a[,3] - post$a[,9]
 post$diff_45 <- post$a[,4] - post$a[,5]
+post$diff_46 <- post$a[,4] - post$a[,6]
+post$diff_47 <- post$a[,4] - post$a[,7]
+post$diff_48 <- post$a[,4] - post$a[,8]
+post$diff_49 <- post$a[,4] - post$a[,9]
+post$diff_56 <- post$a[,5] - post$a[,6]
+post$diff_57 <- post$a[,5] - post$a[,7]
+post$diff_58 <- post$a[,5] - post$a[,8]
+post$diff_59 <- post$a[,5] - post$a[,9]
+post$diff_67 <- post$a[,6] - post$a[,7]
+post$diff_68 <- post$a[,6] - post$a[,8]
+post$diff_69 <- post$a[,6] - post$a[,9]
+post$diff_78 <- post$a[,7] - post$a[,8]
+post$diff_79 <- post$a[,7] - post$a[,9]
+post$diff_89 <- post$a[,8] - post$a[,9]
+
+
 precis( post , depth=2 )
 
 
@@ -244,7 +272,8 @@ simulated_df$m4m5 <- simulated_df$m4-simulated_df$m5
 simulated_df %>% 
   pivot_longer(cols = "m1m2":"m4m5", names_to = "model_diff", values_to = "contrast") %>% 
   ggplot(aes(x = contrast, y = model_diff)) +
-  stat_halfeye()
+  stat_halfeye() +
+  geom_vline(xintercept = 0, linetype = "dashed") 
 ```
 
 
