@@ -119,10 +119,6 @@ singo <- quatro %>%
   rename(ourmodel = `model.x`) %>% 
   rename(difference = diff) %>% 
   select(run, new_topic, ourmodel,difference)
-
-
-
-
 ```
 
 ```{r}
