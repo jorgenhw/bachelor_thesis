@@ -99,32 +99,6 @@ all_models_w_topics <- merge(modelscombined,topics, by = "Text", all.x = T, all.
 all_models_w_topics <- all_models_w_topics[complete.cases(all_models_w_topics), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
 ```
 
-```{r}
-df_temp <- error_rate_per_run_per_topic %>% 
-  filter(run == "../data/aelectra/df_classification_report0.csv")
-
-df_temp$loo_acc <- rep(0, nrow(df_temp))
-
-for (i in 1:nrow(df_temp)){
-  df_temp$loo_acc[i] <- (sum(df_temp$error_rate_per_run_per_topic_col) - df_temp$error_rate_per_run_per_topic_col[i]) / (nrow(df_temp) - 1)
-}
-```
-
-```{r}
-df <- data.frame(team=c('A', 'A', 'A', 'B', 'B', 'B'),
-                 team_2=c('C', 'A', 'A', 'B', 'B', 'B'),
-                 points=c(14, 18, 22, 26, 36, 34),
-                 assists=c(5, 4, 4, 8, 7, 3))
-
-df %>%
-  group_by(team, team_2) %>%
-            summarize(mean_points = mean(points)) %>%
-            ungroup() %>% 
-  select(mean_points)
-```
-
-
-
 # GETTING ERROR RATES FOR EACH MODEL
 ```{r}
 error_rate_per_run_per_topic <- all_models_w_topics %>% 
@@ -561,7 +535,7 @@ dens(prior_a_model)
 
 ```{r}
 ### COMPARING THE MEANS WITHIN MODEL
-pacman::p_load(tidybayes.rethinking)
+pacman::p_load(tidybayes.rethinking, tidybayes)
 
 # subsetting only the used columns
 analysis_df <-  model_topic_accuracy_group_df %>% 
@@ -603,6 +577,16 @@ func_TEMP <- function(topic){
 list_models <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
 
 ```
+
+```{r}
+# checking trace and trank plots
+
+list_traceplots <- lapply(list_models, traceplot)
+list_trankplots <- lapply(list_models, trankplot)
+
+
+```
+
 
 ```{r}
 distribution_plot_topic_func <- function(model) {
@@ -649,7 +633,6 @@ distribution_plot_topic_func <- function(model) {
   
   return(df_temp)
 }
-list_contrasts <- mapply(distribution_plot_topic_func, list_models, list(-1,0,1,2,3,4,5,6,7,8,9))
 list_contrasts <- lapply(list_models, distribution_plot_topic_func)
 
 tibble_contrasts <- data.table::rbindlist(list_contrasts)
@@ -699,9 +682,11 @@ pacman::p_load(tidybayes.rethinking)
 
 # subsetting only the used columns
 analysis_df <-  model_topic_accuracy_group_df %>% 
-  mutate("language_12" = ifelse(language == "mono", 1, 2)) %>% 
-  select(model, language_12, diff_topic, left_out) %>% 
-  rename(language_model = model)
+  mutate("size_12" = ifelse(size == "base", 1, 2)) %>%
+  filter(!is.na(size_12)) %>% 
+  mutate(language_model = ifelse(model == 4, 1, 2)) %>% 
+  #mutate(language_model = ifelse((model == 4)|(model == 5), 1, 2)) %>% # perhaps I need to have an indicator variablt that links the xlm models together and the nb-bert models together
+  select(language_model, size_12, diff_topic, left_out)
 
 # analysis_df$model <- as.factor(analysis_df$model)
 # analysis_df$left_out <- as.factor(analysis_df$left_out)
@@ -715,10 +700,10 @@ func_TEMP <- function(topic){
     alist(
         diff_topic ~ dnorm(mu, sigma),
         #mu <- a_model[language_model],
-        mu <- a_model[language_model] + a_group[language_12],
+        mu <- a_model[language_model] + a_group[size_12],
         a_model[language_model] ~ dnorm(0, sigma_a),
         #a_group[language] ~ dnorm(0.4, 0.15),
-        a_group[language_12] ~ dnorm(a_bar, sigma_bar),
+        a_group[size_12] ~ dnorm(a_bar, sigma_bar),
         a_bar ~ dnorm(0, 0.2),
         sigma_bar ~ dexp(10),
         sigma_a ~ dexp(10),
@@ -738,36 +723,6 @@ list_models <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
 
 ```
 
-```{r}
-distribution_plot_topic_func <- function(model) {
-  topic <- unique(model@data$new_topic)
-  
-  post <- extract.samples(model)
-  
-  post$diff_12 <- post$a_group[,1] - post$a_group[,2]
-
-  plot_temp <- tibble("group_1" = post$a_group[,1], "group_2" = post$a_group[,2], "diff_12" = post$diff_12)%>% 
-  pivot_longer(cols = "group_1":"diff_12", names_to = "model", values_to = "contrast") %>% 
-    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0))) +
-    stat_halfeye(size = 2) +
-    geom_vline(xintercept = 0, linetype = "dashed")  +
-    scale_fill_manual(values = c("gray80", "skyblue")) +
-    ggtitle(label = paste("Topic", topic)) +
-    xlim(-0.30, 0.30)
-  
-  return(plot_temp)
-}
-
-topic_plots <- lapply(list_models, distribution_plot_topic_func)
-
-#precis(post, depth=2)
-
-#plot( precis( post , depth=2))
-
-for (i in 1:length(topic_plots)) {
-print(topic_plots[[i]])
-}
-```
 
 ```{r}
 # creating a plot with all topic contrasts
@@ -783,7 +738,6 @@ distribution_plot_topic_func <- function(model) {
   
   return(df_temp)
 }
-list_contrasts <- mapply(distribution_plot_topic_func, list_models, list(-1,0,1,2,3,4,5,6,7,8,9))
 list_contrasts <- lapply(list_models, distribution_plot_topic_func)
 
 tibble_contrasts <- data.table::rbindlist(list_contrasts)
@@ -793,12 +747,12 @@ tibble_contrasts %>%
     stat_halfeye(size = 2) +
     geom_vline(xintercept = 0, linetype = "dashed")  +
     scale_fill_manual(values = c("gray80", "skyblue")) +
-    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between mono- and multi-lingual models", x = "RTAS Difference", y = "Topic Number") +
+    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between base and large models", x = "RTAS Difference", y = "Topic Number") +
     xlim(-0.20, 0.20) +
   theme_bw() +
   theme(legend.position = "none") 
 
-ggsave("../figures/plot_2.png", width = 1500, height = 2000, units = "px")
+ggsave("../figures/plot_3.png", width = 1500, height = 2000, units = "px")
 ```
 
 
