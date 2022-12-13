@@ -10,7 +10,7 @@ pacman::p_load(tidyverse,devtools,rethinking, data.table)
 
 # LOADING DATA
 
-```{r}
+```{r, results = 'hide'}
 ######## LOADING CLASSIFICATION REPORT #################
 
 # Function for loading multiple files
@@ -82,8 +82,22 @@ classf_report_mdeberta_v3_base <- list.files(path = "../data/mdeberta-v3-base", 
 classf_report_mdeberta_v3_base['MISS_binary'] <- ifelse(classf_report_mdeberta_v3_base$Misclassification == "TRUE", 1, 0)
 classf_report_mdeberta_v3_base$model <- 9
 
+# nb-bert-base
+classf_report_nb_bert_base <- list.files(path = "../data/nb-bert-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_base['MISS_binary'] <- ifelse(classf_report_nb_bert_base$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_base$model <- 10
+
+# nb-bert-large
+classf_report_nb_bert_large <- list.files(path = "../data/nbailab", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_large['MISS_binary'] <- ifelse(classf_report_nb_bert_large$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_large$model <- 11
+
 ##### COMBINING MODELS #####
-modelscombined <- rbind(classf_report_jonf, classf_report_vestin, classf_report_aelectra, classf_report_XLM_base, classf_report_XLM_large, classf_report_twitter_xlm_roberta, classf_report_flax,classf_report_danish_bert_botxo, classf_report_mdeberta_v3_base)
+modelscombined <- rbind(classf_report_jonf, classf_report_vestin, classf_report_aelectra, classf_report_XLM_base, classf_report_XLM_large, classf_report_twitter_xlm_roberta, classf_report_flax,classf_report_danish_bert_botxo, classf_report_mdeberta_v3_base, classf_report_nb_bert_base, classf_report_nb_bert_large)
 
 
 ########## LOADING TOPICS ###############
