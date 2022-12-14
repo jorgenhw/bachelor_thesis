@@ -90,7 +90,7 @@ classf_report_nb_bert_base['MISS_binary'] <- ifelse(classf_report_nb_bert_base$M
 classf_report_nb_bert_base$model <- 10
 
 # nb-bert-large
-classf_report_nb_bert_large <- list.files(path = "../data/nbailab", pattern = "*.csv", 
+classf_report_nb_bert_large <- list.files(path = "../data/nb-bert-large", pattern = "*.csv", 
                full.names = T) %>% 
     map_df(~read_plus(.))
 classf_report_nb_bert_large['MISS_binary'] <- ifelse(classf_report_nb_bert_large$Misclassification == "TRUE", 1, 0)
@@ -112,6 +112,23 @@ all_models_w_topics <- merge(modelscombined,topics, by = "Text", all.x = T, all.
   select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run, model)
 all_models_w_topics <- all_models_w_topics[complete.cases(all_models_w_topics), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
 ```
+
+# VISUALISING TOPICS
+```{r}
+topics %>% 
+  group_by(new_topic) %>% 
+  summarise("count" = n())
+
+topics %>% 
+  ggplot(aes(x = as.factor(new_topic))) +
+  geom_histogram(stat = "count", aes(fill = new_topic)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(title = "Histogram of Topic Counts", x = "Topic Number", y = "Count")
+
+ggsave("../figures/plot_histogram_topics.png")
+```
+
 
 # GETTING ERROR RATES FOR EACH MODEL
 ```{r}
@@ -478,7 +495,7 @@ model_topic_accuracy_group_df <- model_topic_accuracy_df %>%
 
 # the groups of mono and multi language models
 mono <- c("aelectra", "roberta-base-danish", "danish-bert-botxo")
-multi <- c("ScandiBERT", "xlm-roberta-large", "xlm-roberta-base", "electra-small-nordic", "mdeberta-v3-base", "twitter-xlm-roberta", "nb-bert-large")
+multi <- c("ScandiBERT", "xlm-roberta-large", "xlm-roberta-base", "electra-small-nordic", "mdeberta-v3-base", "twitter-xlm-roberta", "nb-bert-large", "nb-bert-base")
 
 model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
   mutate("model_name" = ifelse(model_name == "flax", "roberta-base-danish", ifelse(model_name == "vestinn_ScandiBERT", "ScandiBERT", ifelse(model_name == "jonfd_electra-small-nordic", "electra-small-nordic", ifelse(model_name == "xlm_roberta_large", "xlm-roberta-large", model_name))))) %>% 
@@ -519,11 +536,13 @@ plot_1_simple <- model_topic_accuracy_group_df %>%
   theme_bw() +
   labs(title = "Boxplot of RTAS", subtitle = "Distribution of RTAS for all models on all topics", x = "Topic Number", y = "RTAS")
 
-ggsave(filename = "../figures/plot_1.png")
+#ggsave(filename = "../figures/plot_1.png")
 ```
 
 
 ## Mono vs. multi
+
+### Checking priors
 ```{r}
 # prior predictive simulation
 sample_a_bar <- rnorm( 1e4, 0, 0.1)
@@ -546,7 +565,7 @@ dens(prior_a_lang)
 dens(prior_a_model)
 ```
 
-
+### Making model for each topic
 ```{r}
 ### COMPARING THE MEANS WITHIN MODEL
 pacman::p_load(tidybayes.rethinking, tidybayes)
@@ -570,10 +589,10 @@ func_TEMP <- function(topic){
         diff_topic ~ dnorm(mu, sigma),
         #mu <- a_model[language_model],
         mu <- a_model[language_model] + a_group[language_12],
-        a_model[language_model] ~ dnorm(0, sigma_a),
+        a_model[language_model] ~ dnorm(a_bar, sigma_a), # adaptive prior
         #a_group[language] ~ dnorm(0.4, 0.15),
-        a_group[language_12] ~ dnorm(a_bar, sigma_bar),
-        a_bar ~ dnorm(0, 0.2),
+        a_group[language_12] ~ dnorm(0, sigma_bar), # group-levels
+        a_bar ~ dnorm(0, 0.2), # hyper-prior
         sigma_bar ~ dexp(10),
         sigma_a ~ dexp(10),
         sigma ~ dexp(10)
@@ -588,7 +607,7 @@ func_TEMP <- function(topic){
 
 # applying the function for all topics individually
 #list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
-list_models <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+list_models_ling <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
 
 ```
 
@@ -698,9 +717,9 @@ pacman::p_load(tidybayes.rethinking)
 analysis_df <-  model_topic_accuracy_group_df %>% 
   mutate("size_12" = ifelse(size == "base", 1, 2)) %>%
   filter(!is.na(size_12)) %>% 
-  mutate(language_model = ifelse(model == 4, 1, 2)) %>% 
-  #mutate(language_model = ifelse((model == 4)|(model == 5), 1, 2)) %>% # perhaps I need to have an indicator variablt that links the xlm models together and the nb-bert models together
-  select(language_model, size_12, diff_topic, left_out)
+  mutate(language_model = ifelse(model_name == "nb-bert-base", 1, ifelse(model_name == "nb-bert-large", 2, ifelse(model_name == "xlm-roberta-base", 3, ifelse(model_name == "xlm-roberta-large", 4, NA))))) %>% 
+  mutate(language_model_type = ifelse((model == 4)|(model == 5), 1, 2)) %>% # perhaps I need to have an indicator variablt that links the xlm models together and the nb-bert models together
+  select(language_model, language_model_type, size_12, diff_topic, left_out, model_name)
 
 # analysis_df$model <- as.factor(analysis_df$model)
 # analysis_df$left_out <- as.factor(analysis_df$left_out)
@@ -714,14 +733,26 @@ func_TEMP <- function(topic){
     alist(
         diff_topic ~ dnorm(mu, sigma),
         #mu <- a_model[language_model],
-        mu <- a_model[language_model] + a_group[size_12],
-        a_model[language_model] ~ dnorm(0, sigma_a),
+        mu <- a_model[language_model] + a_group[size_12] + a_type[language_model_type], # possibly add the fact that a relationship exists between nb-bert models and xlm-roberta models. So incorporate random variation for all individual models, but also random variation for the two model_types. And then compare the size differences. But perhaps I should only add the model_type thing. It produces way more confident estimates
+        a_model[language_model] ~ dnorm(a_bar, sigma_a),
         #a_group[language] ~ dnorm(0.4, 0.15),
-        a_group[size_12] ~ dnorm(a_bar, sigma_bar),
+        a_group[size_12] ~ dnorm(0, sigma_bar),
+        a_type[language_model_type] ~ dnorm(0, sigma_type),
         a_bar ~ dnorm(0, 0.2),
         sigma_bar ~ dexp(10),
+        sigma_type ~ dexp(10),
         sigma_a ~ dexp(10),
         sigma ~ dexp(10)
+        
+        # diff_topic ~ dnorm(mu, sigma),
+        # #mu <- a_model[language_model],
+        # mu <- a_group[size_12] + a_type[language_model_type],
+        # a_group[size_12] ~ dnorm(0, sigma_bar),
+        # a_type[language_model_type] ~ dnorm(a_bar, sigma_type),
+        # a_bar ~ dnorm(0, 0.2),
+        # sigma_bar ~ dexp(10),
+        # sigma_type ~ dexp(10),
+        # sigma ~ dexp(10)
         
     ), data = func_df, chains = 4, cores = 4, control=list(adapt_delta=0.99), iter = 4000, warmup = 4000/2)
   
@@ -733,9 +764,10 @@ func_TEMP <- function(topic){
 
 # applying the function for all topics individually
 #list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
-list_models <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+list_models_size <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
 
 ```
+
 
 
 ```{r}
@@ -752,7 +784,7 @@ distribution_plot_topic_func <- function(model) {
   
   return(df_temp)
 }
-list_contrasts <- lapply(list_models, distribution_plot_topic_func)
+list_contrasts <- lapply(list_models_size, distribution_plot_topic_func)
 
 tibble_contrasts <- data.table::rbindlist(list_contrasts)
 
@@ -766,15 +798,158 @@ tibble_contrasts %>%
   theme_bw() +
   theme(legend.position = "none") 
 
-ggsave("../figures/plot_3.png", width = 1500, height = 2000, units = "px")
+ggsave("../figures/plot_3_4.png", width = 1500, height = 2000, units = "px")
+```
+
+```{r}
+model_topic_accuracy_group_df %>% 
+  filter(!is.na(size)) %>%
+  #filter(size == "base") %>% 
+  # group_by(model_name, left_out) %>% 
+  # summarise("mean_m" = mean(diff_topic)) %>% 
+  # ungroup() %>% 
+  ggplot(aes(y = diff_topic, x = left_out)) +
+  geom_point(aes(colour = model_name))
 ```
 
 
+## Comparing different architectures
+
+```{r}
+# prior predictive simulation
+sample_a_bar <- rnorm( 1e4, 0, 0.1)
+sample_a_lang <- rnorm( 1e4, 0, 0.20)
+sample_a_model <- rnorm( 1e4, 0, 0.3)
+sample_sigma_a_bar <- rexp( 1e4 , 10)
+sample_sigma_a_lang <- rexp( 1e4 , 10)
+sample_sigma_a_model <- rexp( 1e4 , 10)
+prior_a_bar <- rnorm( 1e4, sample_a_bar , sample_sigma_a_bar)
+prior_a_lang <- rnorm( 1e4, sample_a_lang , sample_sigma_a_lang)
+prior_a_model <- rnorm( 1e4, sample_a_model , sample_sigma_a_model)
+dens(sample_a_bar)
+dens(sample_a_lang)
+dens(sample_a_model)
+dens(sample_sigma_a_bar)
+dens(sample_sigma_a_lang)
+dens(sample_sigma_a_model)
+dens(prior_a_bar)
+dens(prior_a_lang)
+dens(prior_a_model)
+```
 
 
+```{r}
+### COMPARING THE MEANS WITHIN MODEL
+pacman::p_load(tidybayes.rethinking)
+
+# subsetting only the used columns
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  mutate(architecture_style = ifelse(architecture_style == "bert", 1, ifelse(architecture_style == "electra", 2, ifelse(architecture_style == "deberta", 3, ifelse(architecture_style == "roberta", 4, NA))))) %>%
+  rename(language_model = model) %>% 
+  select(language_model, diff_topic, left_out, architecture_style)
+
+# analysis_df$model <- as.factor(analysis_df$model)
+# analysis_df$left_out <- as.factor(analysis_df$left_out)
+
+# creating a function that filters for topic and creates ULAM model
+func_TEMP <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model <- ulam(
+    alist(
+        # diff_topic ~ dnorm(mu, sigma),
+        # #mu <- a_model[language_model],
+        # mu <- a_model[language_model] + a_type[architecture_style],
+        # a_model[language_model] ~ dnorm(a_bar, sigma_a),
+        # a_type[architecture_style] ~ dnorm(0, sigma_type),
+        # a_bar ~ dnorm(0, 0.2),
+        # sigma_a ~ dexp(10),
+        # sigma_type ~ dexp(10),
+        # sigma ~ dexp(10)
+      
+        diff_topic ~ dnorm(mu, sigma),
+        #mu <- a_model[language_model],
+        mu <- a_type[architecture_style],
+        a_type[architecture_style] ~ dnorm(0, sigma_type),
+        sigma_type ~ dexp(10),
+        sigma ~ dexp(10)
+        
+    ), data = func_df, chains = 4, cores = 4, control=list(adapt_delta=0.99), iter = 4000, warmup = 4000/2)
+  
+  #func_precis <- precis(func_model, depth = 2)
+  #list(func_model, func_precis) # used to return this
+  
+  return(func_model)
+}
+
+# applying the function for all topics individually
+#list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
+list_models_style <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+
+```
+
+```{r}
+precis(list_models_style[[1]], depth = 2)
+```
+
+```{r}
+temp_post <- extract.samples(list_models_style[[1]])
+
+temp_post$a_type[,1]
+```
 
 
+```{r}
+# creating a plot with all topic contrasts
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$left_out)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a_type[,1] - post$a_type[,2]
+  post$diff_13 <- post$a_type[,1] - post$a_type[,3]
+  post$diff_14 <- post$a_type[,1] - post$a_type[,4]
+  post$diff_23 <- post$a_type[,2] - post$a_type[,3]
+  post$diff_24 <- post$a_type[,2] - post$a_type[,4]
+  post$diff_34 <- post$a_type[,3] - post$a_type[,4]
+  post$topic <- topic
 
+  df_temp <- tibble("topic" = post$topic, "diff_12" = post$diff_12, "diff_13" = post$diff_13, "diff_14" = post$diff_14, "diff_23" = post$diff_23, "diff_24" = post$diff_24, "diff_34" = post$diff_34)
+  
+  return(df_temp)
+}
+list_contrasts <- lapply(list_models_style, distribution_plot_topic_func)
+
+tibble_contrasts <- data.table::rbindlist(list_contrasts)
+
+as_tibble(post[3:length(post)])%>% 
+  pivot_longer(cols = "diff_12":"diff_89", names_to = "model", values_to = "contrast") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0)))
+
+tibble_contrasts %>%
+  pivot_longer(cols = "diff_12":"diff_34", names_to = "model", values_to = "contrast") %>%
+  filter(model == "diff_14") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(as.factor(topic)), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between BERT style architectures", x = "RTAS Difference", y = "Topic Number") +
+    xlim(-0.20, 0.20) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ggsave("../figures/plot_4.png", width = 1500, height = 2000, units = "px")
+```
+
+
+```{r}
+model_topic_accuracy_group_df %>% 
+  filter(left_out == 1) %>% 
+  group_by(model_name, language, size, architecture_style) %>% 
+  summarise(n()) %>% 
+  view()
+```
 
 
 
