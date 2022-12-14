@@ -1,0 +1,907 @@
+---
+title: "Model comparison"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,devtools,rethinking, data.table)
+```
+
+# LOADING DATA
+
+```{r}
+######## LOADING CLASSIFICATION REPORT #################
+
+# Function for loading multiple files
+read_plus <- function(flnm) {
+    read_csv(flnm) %>% 
+        mutate(filename = flnm)
+}
+
+# jonfd_electra-small-nordic
+classf_report_jonf <- list.files(path = "../data/jonfd_electra-small-nordic", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_jonf['MISS_binary'] <- ifelse(classf_report_jonf$Misclassification == "TRUE", 1, 0) 
+classf_report_jonf$model <- 1
+
+# vestinn/ScandiBERT
+classf_report_vestin <- list.files(path = "../data/vestinn_ScandiBERT", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_vestin['MISS_binary'] <- ifelse(classf_report_vestin$Misclassification == "TRUE", 1, 0) 
+classf_report_vestin$model <- 2
+
+# aelectra
+classf_report_aelectra <- list.files(path = "../data/aelectra", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_aelectra['MISS_binary'] <- ifelse(classf_report_aelectra$Misclassification == "TRUE", 1, 0) 
+classf_report_aelectra$model <- 3
+
+# xlm-roberta-base
+classf_report_XLM_base <- list.files(path = "../data/xlm-roberta-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_base['MISS_binary'] <- ifelse(classf_report_XLM_base$Misclassification == "TRUE", 1, 0)
+classf_report_XLM_base$model <- 4
+
+# xlm_roberta_large
+classf_report_XLM_large <- list.files(path = "../data/xlm_roberta_large", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_large['MISS_binary'] <- ifelse(classf_report_XLM_large$Misclassification == "TRUE", 1, 0)
+classf_report_XLM_large$model <- 5
+
+# twitter-xlm-roberta
+classf_report_twitter_xlm_roberta <- list.files(path = "../data/twitter-xlm-roberta", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_twitter_xlm_roberta['MISS_binary'] <- ifelse(classf_report_twitter_xlm_roberta$Misclassification == "TRUE", 1, 0)
+classf_report_twitter_xlm_roberta$model <- 6
+
+# flax
+classf_report_flax <- list.files(path = "../data/flax", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_flax['MISS_binary'] <- ifelse(classf_report_flax$Misclassification == "TRUE", 1, 0)
+classf_report_flax$model <- 7
+
+# danish-bert-botxo
+classf_report_danish_bert_botxo <- list.files(path = "../data/danish-bert-botxo", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_danish_bert_botxo['MISS_binary'] <- ifelse(classf_report_danish_bert_botxo$Misclassification == "TRUE", 1, 0)
+classf_report_danish_bert_botxo$model <- 8
+
+# mdeberta-v3-base
+classf_report_mdeberta_v3_base <- list.files(path = "../data/mdeberta-v3-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_mdeberta_v3_base['MISS_binary'] <- ifelse(classf_report_mdeberta_v3_base$Misclassification == "TRUE", 1, 0)
+classf_report_mdeberta_v3_base$model <- 9
+
+# nb-bert-base
+classf_report_nb_bert_base <- list.files(path = "../data/nb-bert-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_base['MISS_binary'] <- ifelse(classf_report_nb_bert_base$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_base$model <- 10
+
+# nb-bert-large
+classf_report_nb_bert_large <- list.files(path = "../data/nb-bert-large", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_large['MISS_binary'] <- ifelse(classf_report_nb_bert_large$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_large$model <- 11
+
+##### COMBINING MODELS #####
+modelscombined <- rbind(classf_report_jonf, classf_report_vestin, classf_report_aelectra, classf_report_XLM_base, classf_report_XLM_large, classf_report_twitter_xlm_roberta, classf_report_flax,classf_report_danish_bert_botxo, classf_report_mdeberta_v3_base, classf_report_nb_bert_base, classf_report_nb_bert_large)
+
+
+########## LOADING TOPICS ###############
+topics <- read_csv("../data/BerTopic/sub_groups_14112022.csv") %>% 
+  rename(Text = original_tweet) 
+
+
+
+##### MERGING MODELS WITH TOPICS
+all_models_w_topics <- merge(modelscombined,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run, model)
+all_models_w_topics <- all_models_w_topics[complete.cases(all_models_w_topics), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+```
+
+# VISUALISING TOPICS
+```{r}
+topics %>% 
+  group_by(new_topic) %>% 
+  summarise("count" = n())
+
+topics %>% 
+  ggplot(aes(x = as.factor(new_topic))) +
+  geom_histogram(stat = "count", aes(fill = new_topic)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(title = "Histogram of Topic Counts", x = "Topic Number", y = "Count")
+
+#ggsave("../figures/plot_histogram_topics.png")
+```
+
+
+# GETTING ERROR RATES FOR EACH MODEL
+```{r}
+error_rate_per_run_per_topic <- all_models_w_topics %>% 
+  group_by(new_topic, run, model) %>% 
+  summarise("error_rate_per_run_per_topic_col" = mean(MISS_binary))
+
+error_rate_per_run_across_topics <- all_models_w_topics %>% 
+  group_by(run, model) %>%
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+tress <- merge(error_rate_per_run_per_topic, error_rate_per_run_across_topics, by = "run", all.x = T, all.y = F)
+
+quatro <- tress %>% 
+  mutate(diff = error_rate_per_run_per_topic_col - error_rate_per_run_across_topics)
+
+singo <- quatro %>% 
+  rename(ourmodel = `model.x`) %>% 
+  rename(difference = diff) %>% 
+  select(run, new_topic, ourmodel,difference)
+
+final <- singo %>% 
+  select(difference, ourmodel)
+```
+
+# Calculating Leave-one-group-out means
+```{r}
+loo_acc_df <- tibble("run" = 0, "model" = 0, "loo_acc" = 0, "left_out" = 0)
+
+for (i in unique(all_models_w_topics$new_topic)) {
+  for_loop_df <- all_models_w_topics[-which(all_models_w_topics$new_topic == i),]
+  
+  for_loop_vec <- for_loop_df %>% 
+    group_by(run, model) %>% 
+    summarise("loo_acc" = mean(MISS_binary)) %>%
+    ungroup() %>% 
+    mutate("left_out" = i)
+  
+  loo_acc_df <- rbind(loo_acc_df, for_loop_vec)
+  
+}
+
+# removing the empty row
+loo_acc_df <- loo_acc_df[-1,]
+
+# accuracy for each run of each model including all topics
+error_rate_per_run_across_topics <- all_models_w_topics %>% 
+  group_by(run, model) %>%
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+acc_loo_acc_df <- merge(loo_acc_df, error_rate_per_run_across_topics, all.x = T, all.y = T, by = c("run", "model"))
+
+# accuract for each run of each model per topic
+error_rate_per_run_per_topic <- all_models_w_topics %>% 
+  group_by(new_topic, run, model) %>% 
+  summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+
+error_rate_per_run_per_topic$left_out <- error_rate_per_run_per_topic$new_topic
+
+all_accuracy_types_df <- merge(acc_loo_acc_df, error_rate_per_run_per_topic, all.x = T, all.y = T, by = c("run", "model", "left_out"))
+
+# arranging the dataframe
+all_accuracy_types_df <- all_accuracy_types_df %>%
+  select(-c(new_topic)) %>% 
+  arrange(left_out)
+```
+
+# Calculating within model distance to mean
+```{r}
+all_accuracy_types_diff_df <- all_accuracy_types_df %>% 
+  mutate(diff_topic = error_rate_per_run_per_topic - loo_acc)
+
+model_topic_accuracy_df <- all_accuracy_types_diff_df %>%
+  select(run, left_out, model, diff_topic)
+
+```
+
+# Making model with all models
+```{r}
+### COMPARING THE MEANS WITHIN MODEL
+pacman::p_load(tidybayes.rethinking)
+
+# subsetting only the used columns
+analysis_df <-  model_topic_accuracy_df %>% 
+  select(model, diff_topic, left_out) %>% 
+  rename(language_model = model)
+
+# analysis_df$model <- as.factor(analysis_df$model)
+# analysis_df$left_out <- as.factor(analysis_df$left_out)
+
+# creating a function that filters for topic and creates ULAM model
+func_TEMP <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model <- ulam(
+    alist(
+        diff_topic ~ dnorm(mu, sigma),
+        mu <- a[language_model],
+        a[language_model] ~ dnorm(0.40, 0.15) ,
+        sigma ~ dexp(2) 
+    ), data = func_df, chains = 4, cores = 4)
+  
+  #func_precis <- precis(func_model, depth = 2)
+  #list(func_model, func_precis) # used to return this
+  
+  return(func_model)
+}
+
+# applying the function for all topics individually
+# list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
+list_models <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+```
+
+
+
+# GENERATING PLOTS
+
+## Describing the data
+```{r}
+# all data
+topics %>% 
+  group_by(new_topic) %>% 
+  summarise(n())
+
+# validation data
+all_models_w_topics %>%
+  select(new_topic, Text) %>% 
+  distinct() %>% 
+  group_by(new_topic) %>% 
+  summarise(n())
+
+topics %>% 
+  summarise(n())
+
+all_models_w_topics %>% 
+  select(Text) %>% 
+  distinct() %>% 
+  summarise(n())
+```
+
+
+## Plots of means
+
+```{r}
+pacman::p_load(tidybayes.rethinking, tidybayes)
+
+post <- extract.samples(list_models[[2]])
+  
+  post$diff_12 <- post$a[,1] - post$a[,2]
+  post$diff_13 <- post$a[,1] - post$a[,3]
+  post$diff_14 <- post$a[,1] - post$a[,4]
+  post$diff_15 <- post$a[,1] - post$a[,5]
+  post$diff_16 <- post$a[,1] - post$a[,6]
+  post$diff_17 <- post$a[,1] - post$a[,7]
+  post$diff_18 <- post$a[,1] - post$a[,8]
+  post$diff_19 <- post$a[,1] - post$a[,9]
+  post$diff_23 <- post$a[,2] - post$a[,3]
+  post$diff_24 <- post$a[,2] - post$a[,4]
+  post$diff_25 <- post$a[,2] - post$a[,5]
+  post$diff_26 <- post$a[,2] - post$a[,6]
+  post$diff_27 <- post$a[,2] - post$a[,7]
+  post$diff_28 <- post$a[,2] - post$a[,8]
+  post$diff_29 <- post$a[,2] - post$a[,9]
+  post$diff_34 <- post$a[,3] - post$a[,4]
+  post$diff_35 <- post$a[,3] - post$a[,5]
+  post$diff_36 <- post$a[,3] - post$a[,6]
+  post$diff_37 <- post$a[,3] - post$a[,7]
+  post$diff_38 <- post$a[,3] - post$a[,8]
+  post$diff_39 <- post$a[,3] - post$a[,9]
+  post$diff_45 <- post$a[,4] - post$a[,5]
+  post$diff_46 <- post$a[,4] - post$a[,6]
+  post$diff_47 <- post$a[,4] - post$a[,7]
+  post$diff_48 <- post$a[,4] - post$a[,8]
+  post$diff_49 <- post$a[,4] - post$a[,9]
+  post$diff_56 <- post$a[,5] - post$a[,6]
+  post$diff_57 <- post$a[,5] - post$a[,7]
+  post$diff_58 <- post$a[,5] - post$a[,8]
+  post$diff_59 <- post$a[,5] - post$a[,9]
+  post$diff_67 <- post$a[,6] - post$a[,7]
+  post$diff_68 <- post$a[,6] - post$a[,8]
+  post$diff_69 <- post$a[,6] - post$a[,9]
+  post$diff_78 <- post$a[,7] - post$a[,8]
+  post$diff_79 <- post$a[,7] - post$a[,9]
+  post$diff_89 <- post$a[,8] - post$a[,9]
+  
+plot_test <- as_tibble(post[3:length(post)])%>% 
+  pivot_longer(cols = "diff_12":"diff_45", names_to = "model", values_to = "contrast") %>% 
+ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0))) +
+  stat_halfeye(size = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed")  +
+  scale_fill_manual(values = c("gray80", "skyblue"))
+
+plot_test
+```
+
+
+
+
+```{r}
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$new_topic)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a[,1] - post$a[,2]
+  post$diff_13 <- post$a[,1] - post$a[,3]
+  post$diff_14 <- post$a[,1] - post$a[,4]
+  post$diff_15 <- post$a[,1] - post$a[,5]
+  post$diff_16 <- post$a[,1] - post$a[,6]
+  post$diff_17 <- post$a[,1] - post$a[,7]
+  post$diff_18 <- post$a[,1] - post$a[,8]
+  post$diff_19 <- post$a[,1] - post$a[,9]
+  post$diff_23 <- post$a[,2] - post$a[,3]
+  post$diff_24 <- post$a[,2] - post$a[,4]
+  post$diff_25 <- post$a[,2] - post$a[,5]
+  post$diff_26 <- post$a[,2] - post$a[,6]
+  post$diff_27 <- post$a[,2] - post$a[,7]
+  post$diff_28 <- post$a[,2] - post$a[,8]
+  post$diff_29 <- post$a[,2] - post$a[,9]
+  post$diff_34 <- post$a[,3] - post$a[,4]
+  post$diff_35 <- post$a[,3] - post$a[,5]
+  post$diff_36 <- post$a[,3] - post$a[,6]
+  post$diff_37 <- post$a[,3] - post$a[,7]
+  post$diff_38 <- post$a[,3] - post$a[,8]
+  post$diff_39 <- post$a[,3] - post$a[,9]
+  post$diff_45 <- post$a[,4] - post$a[,5]
+  post$diff_46 <- post$a[,4] - post$a[,6]
+  post$diff_47 <- post$a[,4] - post$a[,7]
+  post$diff_48 <- post$a[,4] - post$a[,8]
+  post$diff_49 <- post$a[,4] - post$a[,9]
+  post$diff_56 <- post$a[,5] - post$a[,6]
+  post$diff_57 <- post$a[,5] - post$a[,7]
+  post$diff_58 <- post$a[,5] - post$a[,8]
+  post$diff_59 <- post$a[,5] - post$a[,9]
+  post$diff_67 <- post$a[,6] - post$a[,7]
+  post$diff_68 <- post$a[,6] - post$a[,8]
+  post$diff_69 <- post$a[,6] - post$a[,9]
+  post$diff_78 <- post$a[,7] - post$a[,8]
+  post$diff_79 <- post$a[,7] - post$a[,9]
+  post$diff_89 <- post$a[,8] - post$a[,9]
+  
+  plot_temp <- as_tibble(post[3:length(post)])%>% 
+  pivot_longer(cols = "diff_12":"diff_89", names_to = "model", values_to = "contrast") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    ggtitle(label = paste("Topic", topic)) +
+    xlim(-0.30, 0.30)
+  
+  return(plot_temp)
+}
+
+topic_plots <- lapply(list_models, distribution_plot_topic_func)
+
+#precis(post, depth=2)
+
+#plot( precis( post , depth=2))
+
+for (i in 1:length(topic_plots)) {
+print(topic_plots[[i]])
+}
+```
+
+## Plots of each model
+
+```{r}
+plotting_model_func <- function(model_number){
+temp_df <- tibble("...1" = rep(1,2000), )
+for (i in 1:11){
+  post <- extract.samples(list_models[[i]])
+  temp_df[,i] <- post$a[,model_number]
+}
+
+plot_temp <- as_tibble(temp_df)%>% 
+  pivot_longer(cols = "...1":"...11", names_to = "model", values_to = "contrast") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    ggtitle(label = paste("Model Number ", model_number)) +
+    xlim(-0.30, 0.30)
+
+return(plot_temp)
+}
+
+
+model_plots <- lapply(c(1:9), plotting_model_func)
+
+#precis(post, depth=2)
+
+#plot( precis( post , depth=2))
+
+for (i in 1:length(model_plots)) {
+print(model_plots[[i]])
+}
+```
+
+
+
+## Plots of simulated data
+
+```{r}
+simulated_df <- tibble("m1" = rnorm(1000, post$a[,1], post$sigma))
+simulated_df$m2 <- rnorm(1000, post$a[,2], post$sigma)
+simulated_df$m3 <- rnorm(1000, post$a[,3], post$sigma)
+simulated_df$m4 <- rnorm(1000, post$a[,4], post$sigma)
+simulated_df$m5 <- rnorm(1000, post$a[,5], post$sigma)
+
+simulated_df$m1m2 <- simulated_df$m1-simulated_df$m2
+simulated_df$m1m3 <- simulated_df$m1-simulated_df$m3
+simulated_df$m1m4 <- simulated_df$m1-simulated_df$m4
+simulated_df$m1m5 <- simulated_df$m1-simulated_df$m5
+simulated_df$m2m3 <- simulated_df$m2-simulated_df$m3
+simulated_df$m2m4 <- simulated_df$m2-simulated_df$m4
+simulated_df$m2m5 <- simulated_df$m2-simulated_df$m5
+simulated_df$m3m4 <- simulated_df$m3-simulated_df$m4
+simulated_df$m3m5 <- simulated_df$m3-simulated_df$m5
+simulated_df$m4m5 <- simulated_df$m4-simulated_df$m5
+
+simulated_df %>% 
+  pivot_longer(cols = "m1m2":"m4m5", names_to = "model_diff", values_to = "contrast") %>% 
+  ggplot(aes(x = contrast, y = model_diff)) +
+  stat_halfeye() +
+  geom_vline(xintercept = 0, linetype = "dashed") 
+```
+
+
+```{r}
+samples <- extract.samples(temp_model, n=1e4)
+
+# so PI and HPDI practically ends up being the same. This is true for posterior distributions that are kind of normally distributed
+PI(samples$a[,1], prob = 0.5)
+HPDI(samples$a[,1], prob = 0.5)
+```
+
+
+# Grouping models for analysis
+```{r}
+# adding additional grouping variables, i.e. mono/multi, bert-architecture, size
+model_topic_accuracy_df$model_name <- str_extract(pattern = "data/.*/", string = model_topic_accuracy_df$run) 
+model_topic_accuracy_group_df <- model_topic_accuracy_df %>% 
+  mutate("model_name" = substr(model_topic_accuracy_df$model_name, 6, nchar(model_topic_accuracy_df$model_name)-1))
+
+# the groups of mono and multi language models
+mono <- c("aelectra", "roberta-base-danish", "danish-bert-botxo")
+multi <- c("ScandiBERT", "xlm-roberta-large", "xlm-roberta-base", "electra-small-nordic", "mdeberta-v3-base", "twitter-xlm-roberta", "nb-bert-large", "nb-bert-base")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("model_name" = ifelse(model_name == "flax", "roberta-base-danish", ifelse(model_name == "vestinn_ScandiBERT", "ScandiBERT", ifelse(model_name == "jonfd_electra-small-nordic", "electra-small-nordic", ifelse(model_name == "xlm_roberta_large", "xlm-roberta-large", model_name))))) %>% 
+  mutate("language" = case_when(model_name %in% mono ~ "mono",
+                                model_name %in% multi ~ "multi"))
+
+# size groups
+base <- c("xlm-roberta-base", "nb-bert-base")
+large <- c("xlm-roberta-large", "nb-bert-large")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("size" = ifelse(model_name %in% base, "base", ifelse(model_name %in% large, "large", NA)))
+
+# bert-architecture styles
+electra <- c("aelectra", "electra-small-nordic")
+roberta <- c("roberta-base-danish", "xlm-roberta-large", "xlm-roberta-base", "twitter-xlm-roberta")
+bert <- c("nb-bert-large", "nb-bert-base", "ScandiBERT", "danish-bert-botxo")
+deberta <- c("mdeberta-v3-base")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("architecture_style" = ifelse(model_name %in% electra, "electra", 
+                                       ifelse(model_name %in% roberta, "roberta", 
+                                              ifelse(model_name %in% bert, "bert", 
+                                                     ifelse(model_name %in% deberta, "deberta", NA)
+                                                     )
+                                              )
+                                       )
+         )
+```
+
+## Simple visualisations
+```{r}
+model_topic_accuracy_group_df %>% 
+  ggplot(aes(x = as.factor(left_out), y = diff_topic)) +
+  #geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed")  +
+  geom_boxplot(fill = "#FF9999") +
+  theme_bw() +
+  labs(title = "Boxplot of RTAS", subtitle = "Distribution of RTAS for all models on all topics", x = "Topic Number", y = "RTAS")
+
+#ggsave(filename = "../figures/plot_1.png")
+```
+
+
+## Mono vs. multi
+
+### Checking priors
+```{r}
+# prior predictive simulation
+sample_a_bar <- rnorm(1e4, 0, 0.2)
+sample_sigma_model <- rexp(1e4, 10)
+sample_a_model <- rnorm(1e4, sample_a_bar, sample_sigma_model)
+sample_sigma_group <- rexp(1e4, 10)
+sample_a_group <- rnorm(1e4, 0, sample_sigma_group)
+sample_mu <- sample_a_model + sample_a_group
+sample_sigma <- rexp(1e4, 10)
+prior_diff_topic <- rnorm(1e4, sample_mu, sample_sigma)
+
+dens(prior_diff_topic)
+```
+
+### Making model for each topic
+```{r}
+### COMPARING THE MEANS WITHIN MODEL
+pacman::p_load(tidybayes.rethinking, tidybayes)
+
+# subsetting only the used columns
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  mutate("language_12" = ifelse(language == "mono", 1, 2)) %>% 
+  select(model, language_12, diff_topic, left_out) %>% 
+  rename(language_model = model)
+
+# analysis_df$model <- as.factor(analysis_df$model)
+# analysis_df$left_out <- as.factor(analysis_df$left_out)
+
+# creating a function that filters for topic and creates ULAM model
+func_TEMP <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model <- ulam(
+    alist(
+        diff_topic ~ dnorm(mu, sigma),
+        #mu <- a_model[language_model],
+        mu <- a_model[language_model] + a_group[language_12],
+        a_model[language_model] ~ dnorm(a_bar, sigma_a), # adaptive prior
+        #a_group[language] ~ dnorm(0.4, 0.15),
+        a_group[language_12] ~ dnorm(0, sigma_bar), # group-levels
+        a_bar ~ dnorm(0, 0.2), # hyper-prior
+        sigma_bar ~ dexp(10),
+        sigma_a ~ dexp(10),
+        sigma ~ dexp(10)
+        
+    ), data = func_df, chains = 4, cores = 4, control=list(adapt_delta=0.99), iter = 4000, warmup = 4000/2)
+  
+  #func_precis <- precis(func_model, depth = 2)
+  #list(func_model, func_precis) # used to return this
+  
+  return(func_model)
+}
+
+# applying the function for all topics individually
+#list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
+list_models_ling <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+
+```
+
+```{r}
+# checking trace and trank plots
+list_traceplots <- lapply(list_models, traceplot)
+list_trankplots <- lapply(list_models, trankplot)
+```
+
+
+```{r}
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$new_topic)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a_group[,1] - post$a_group[,2]
+
+  plot_temp <- tibble("group_1" = post$a_group[,1], "group_2" = post$a_group[,2], "diff_12" = post$diff_12)%>% 
+  pivot_longer(cols = "group_1":"diff_12", names_to = "model", values_to = "contrast") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    ggtitle(label = paste("Topic", topic)) +
+    xlim(-0.30, 0.30)
+  
+  return(plot_temp)
+}
+
+topic_plots <- lapply(list_models, distribution_plot_topic_func)
+
+#precis(post, depth=2)
+
+#plot( precis( post , depth=2))
+
+for (i in 1:length(topic_plots)) {
+print(topic_plots[[i]])
+}
+```
+
+```{r}
+# creating a plot with all topic contrasts
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$left_out)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a_group[,1] - post$a_group[,2]
+  post$topic <- topic
+
+  df_temp <- tibble("topic" = post$topic, "diff_12" = post$diff_12)
+  
+  return(df_temp)
+}
+list_contrasts <- lapply(list_models, distribution_plot_topic_func)
+
+tibble_contrasts <- data.table::rbindlist(list_contrasts)
+
+tibble_contrasts %>% 
+    ggplot(aes(x = diff_12, y = fct_rev(as.factor(topic)), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between mono- and multi-lingual models", x = "RTAS Difference", y = "Topic Number") +
+    xlim(-0.20, 0.20) +
+  theme_bw() +
+  theme(legend.position = "none") 
+
+ggsave("../figures/plot_2.png", width = 1500, height = 2000, units = "px")
+```
+
+
+## Large vs. base
+```{r}
+# prior predictive simulation
+sample_a_bar <- rnorm(1e4, 0, 0.2)
+sample_sigma_model <- rexp(1e4, 10)
+sample_a_model <- rnorm(1e4, sample_a_bar, sample_sigma_model)
+sample_sigma_group <- rexp(1e4, 10)
+sample_a_group <- rnorm(1e4, 0, sample_sigma_group)
+sample_sigma_type <- rexp(1e4, 10)
+sample_a_type <- rnorm(1e4, 0, sample_sigma_type)
+sample_mu <- sample_a_model + sample_a_group + sample_a_type
+sample_sigma <- rexp(1e4, 10)
+prior_diff_topic <- rnorm(1e4, sample_mu, sample_sigma)
+
+dens(prior_diff_topic)
+```
+
+
+```{r}
+### COMPARING THE MEANS WITHIN MODEL
+pacman::p_load(tidybayes.rethinking)
+
+# subsetting only the used columns
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  mutate("size_12" = ifelse(size == "base", 1, 2)) %>%
+  filter(!is.na(size_12)) %>% 
+  mutate(language_model = ifelse(model_name == "nb-bert-base", 1, ifelse(model_name == "nb-bert-large", 2, ifelse(model_name == "xlm-roberta-base", 3, ifelse(model_name == "xlm-roberta-large", 4, NA))))) %>% 
+  mutate(language_model_type = ifelse((model == 4)|(model == 5), 1, 2)) %>% # perhaps I need to have an indicator variablt that links the xlm models together and the nb-bert models together
+  select(language_model, language_model_type, size_12, diff_topic, left_out, model_name)
+
+# analysis_df$model <- as.factor(analysis_df$model)
+# analysis_df$left_out <- as.factor(analysis_df$left_out)
+
+# creating a function that filters for topic and creates ULAM model
+func_TEMP <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model <- ulam(
+    alist(
+        diff_topic ~ dnorm(mu, sigma),
+        #mu <- a_model[language_model],
+        mu <- a_model[language_model] + a_group[size_12] + a_type[language_model_type], # possibly add the fact that a relationship exists between nb-bert models and xlm-roberta models. So incorporate random variation for all individual models, but also random variation for the two model_types. And then compare the size differences. But perhaps I should only add the model_type thing. It produces way more confident estimates
+        a_model[language_model] ~ dnorm(a_bar, sigma_a),
+        #a_group[language] ~ dnorm(0.4, 0.15),
+        a_group[size_12] ~ dnorm(0, sigma_bar),
+        a_type[language_model_type] ~ dnorm(0, sigma_type),
+        a_bar ~ dnorm(0, 0.2),
+        sigma_bar ~ dexp(10),
+        sigma_type ~ dexp(10),
+        sigma_a ~ dexp(10),
+        sigma ~ dexp(10)
+        
+        # diff_topic ~ dnorm(mu, sigma),
+        # #mu <- a_model[language_model],
+        # mu <- a_group[size_12] + a_type[language_model_type],
+        # a_group[size_12] ~ dnorm(0, sigma_bar),
+        # a_type[language_model_type] ~ dnorm(a_bar, sigma_type),
+        # a_bar ~ dnorm(0, 0.2),
+        # sigma_bar ~ dexp(10),
+        # sigma_type ~ dexp(10),
+        # sigma ~ dexp(10)
+        
+    ), data = func_df, chains = 4, cores = 4, control=list(adapt_delta=0.99), iter = 4000, warmup = 4000/2)
+  
+  #func_precis <- precis(func_model, depth = 2)
+  #list(func_model, func_precis) # used to return this
+  
+  return(func_model)
+}
+
+# applying the function for all topics individually
+#list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
+list_models_size <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+
+```
+
+
+
+```{r}
+# creating a plot with all topic contrasts
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$left_out)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a_group[,1] - post$a_group[,2]
+  post$topic <- topic
+
+  df_temp <- tibble("topic" = post$topic, "diff_12" = post$diff_12)
+  
+  return(df_temp)
+}
+list_contrasts <- lapply(list_models_size, distribution_plot_topic_func)
+
+tibble_contrasts <- data.table::rbindlist(list_contrasts)
+
+tibble_contrasts %>% 
+    ggplot(aes(x = diff_12, y = fct_rev(as.factor(topic)), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between base and large models", x = "RTAS Difference", y = "Topic Number") +
+    xlim(-0.20, 0.20) +
+  theme_bw() +
+  theme(legend.position = "none") 
+
+ggsave("../figures/plot_3_4.png", width = 1500, height = 2000, units = "px")
+```
+
+```{r}
+model_topic_accuracy_group_df %>% 
+  filter(!is.na(size)) %>%
+  #filter(size == "base") %>% 
+  # group_by(model_name, left_out) %>% 
+  # summarise("mean_m" = mean(diff_topic)) %>% 
+  # ungroup() %>% 
+  ggplot(aes(y = diff_topic, x = left_out)) +
+  geom_point(aes(colour = model_name))
+```
+
+
+## Comparing different architectures
+
+```{r}
+# prior predictive simulation
+sample_a_bar <- rnorm(1e4, 0, 0.2)
+sample_sigma_model <- rexp(1e4, 10)
+sample_a_model <- rnorm(1e4, sample_a_bar, sample_sigma_model)
+sample_sigma_type <- rexp(1e4, 10)
+sample_a_type <- rnorm(1e4, 0, sample_sigma_type)
+sample_mu <- sample_a_model + sample_a_type
+sample_sigma <- rexp(1e4, 10)
+prior_diff_topic <- rnorm(1e4, sample_mu, sample_sigma)
+
+dens(prior_diff_topic)
+```
+
+
+```{r}
+### COMPARING THE MEANS WITHIN MODEL
+pacman::p_load(tidybayes.rethinking)
+
+# subsetting only the used columns
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  mutate(architecture_style = ifelse(architecture_style == "bert", 1, ifelse(architecture_style == "electra", 2, ifelse(architecture_style == "deberta", 3, ifelse(architecture_style == "roberta", 4, NA))))) %>%
+  rename(language_model = model) %>% 
+  select(language_model, diff_topic, left_out, architecture_style)
+
+# analysis_df$model <- as.factor(analysis_df$model)
+# analysis_df$left_out <- as.factor(analysis_df$left_out)
+
+# creating a function that filters for topic and creates ULAM model
+func_TEMP <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model <- ulam(
+    alist(
+        diff_topic ~ dnorm(mu, sigma),
+        #mu <- a_model[language_model],
+        mu <- a_model[language_model] + a_type[architecture_style],
+        a_model[language_model] ~ dnorm(a_bar, sigma_a),
+        a_type[architecture_style] ~ dnorm(0, sigma_type),
+        a_bar ~ dnorm(0, 0.2),
+        sigma_a ~ dexp(10),
+        sigma_type ~ dexp(10),
+        sigma ~ dexp(10)
+      
+        # diff_topic ~ dnorm(mu, sigma),
+        # #mu <- a_model[language_model],
+        # mu <- a_type[architecture_style],
+        # a_type[architecture_style] ~ dnorm(0, sigma_type),
+        # sigma_type ~ dexp(10),
+        # sigma ~ dexp(10)
+        
+    ), data = func_df, chains = 4, cores = 4, control=list(adapt_delta=0.99), iter = 4000, warmup = 4000/2)
+  
+  #func_precis <- precis(func_model, depth = 2)
+  #list(func_model, func_precis) # used to return this
+  
+  return(func_model)
+}
+
+# applying the function for all topics individually
+#list_models <- lapply(list(-1,0,1,2,3,4,5,6,7,8,9), func_TEMP)
+list_models_style <- lapply(as.list(unique(analysis_df$left_out)), func_TEMP)
+
+```
+
+```{r}
+# creating a plot with all topic contrasts
+distribution_plot_topic_func <- function(model) {
+  topic <- unique(model@data$left_out)
+  
+  post <- extract.samples(model)
+  
+  post$diff_12 <- post$a_type[,1] - post$a_type[,2]
+  post$diff_13 <- post$a_type[,1] - post$a_type[,3]
+  post$diff_14 <- post$a_type[,1] - post$a_type[,4]
+  post$diff_23 <- post$a_type[,2] - post$a_type[,3]
+  post$diff_24 <- post$a_type[,2] - post$a_type[,4]
+  post$diff_34 <- post$a_type[,3] - post$a_type[,4]
+  post$topic <- topic
+
+  df_temp <- tibble("topic" = post$topic, "diff_12" = post$diff_12, "diff_13" = post$diff_13, "diff_14" = post$diff_14, "diff_23" = post$diff_23, "diff_24" = post$diff_24, "diff_34" = post$diff_34)
+  
+  return(df_temp)
+}
+list_contrasts <- lapply(list_models_style, distribution_plot_topic_func)
+
+tibble_contrasts <- data.table::rbindlist(list_contrasts)
+
+as_tibble(post[3:length(post)])%>% 
+  pivot_longer(cols = "diff_12":"diff_89", names_to = "model", values_to = "contrast") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(model), fill = stat(x < 0)))
+
+tibble_contrasts %>%
+  pivot_longer(cols = "diff_12":"diff_34", names_to = "model", values_to = "contrast") %>%
+  filter(model == "diff_14") %>% 
+    ggplot(aes(x = contrast, y = fct_rev(as.factor(topic)), fill = stat(x < 0))) +
+    stat_halfeye(size = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")  +
+    scale_fill_manual(values = c("gray80", "skyblue")) +
+    labs(title ="Group Contrasts on All Topics", subtitle = "Contrasts between BERT style architectures", x = "RTAS Difference", y = "Topic Number") +
+    xlim(-0.20, 0.20) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ggsave("../figures/plot_4.png", width = 1500, height = 2000, units = "px")
+```
+
+
+```{r}
+model_topic_accuracy_group_df %>% 
+  filter(left_out == 1) %>% 
+  group_by(model_name, language, size, architecture_style) %>% 
+  summarise(n()) %>% 
+  view()
+```
+
+
+
+
+
+
+
+
+
+
+
