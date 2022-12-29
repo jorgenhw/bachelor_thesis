@@ -22,13 +22,13 @@
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#about-the-project">About the project</a></li>
-    <li><a href="#section-1">Section 1</a></li>
+    <li><a href="#section-1">Section 1: <i>Topic Modelling</i></a></li>
      <ul>
       <li><a href="#example1">Example 1</a></li>
       <li><a href="#example2">Example 2</a></li>
     </ul>
-    <li><a href="#section-2">Section 2</a></li>
-    <li><a href="#section-3">Section 3</a></li>
+    <li><a href="#section-2">Section 2: <i>Fine-Tuning Models</i></a></li>
+    <li><a href="#section-3">Section 3: <i>Evaluation Method</i></a></li>
     <li><a href="#data">Data</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -69,16 +69,23 @@ cd bachelor_thesis/topic_modelling
 ```
 pip install -r requirements.txt
 ```
-3. Set up the OpenAI API key:
-```
-export OPENAI_API_KEY=your_api_key
-```
-## Data
-We will be using a dataset of song lyrics from *Højskolesangbogen* as our training data. You can use any dataset of song lyrics that you like, or you can scrape lyrics from the internet. Make sure to preprocess the data and save it in a .txt or .csv file. The OpenAI API has a built in tool that 1) checks if your data is properly prepared and 2) if not makes the corrections automatically and then 3) converts your file into the .jsonl format that GPT-3 requires. You call the tool with the following line:
-```
-!openai tools fine_tunes.prepare_data -f $path
-```
-where ```path``` refers to your file.
+3. Open respective notebooks
+
+Run the notebook with the name of the model you want to examine e.g. ```jonfd/electra-small-nordic.ipynb```
+The below table outlines which notebooks contains which models along with a link to a the notebooks on Google Colab
+| Model      | Filename | Colab link |
+| ----------- | ----------- | ----------- |
+| ScandiBERT      | Title       | Title       |
+| XLM-RoBERTa Large   | Text        | Text        |
+| XLM-RoBERTa Base   | Text        | Text        |
+| Nordic ELECTRA-Small   | Text        | Text        |
+| AELAECTRA   | Text        | Text        |
+| RøBÆRTa   | Text        | Text        |
+| Danish BERT BotXO   | Text        | Text        |
+| DeBERTaV3   | Text        | Text        |
+| Twitter-XLM-Roberta-base   | Text        | Text        |
+| NB-BERT-large   | Text        | Text        |
+
 
 ## Finetuning
 1. Choose the GPT-3 model that you want to use for finetuning. You can find a list of available models and their sizes here: https://beta.openai.com/docs/models/gpt-3
