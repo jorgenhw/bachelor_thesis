@@ -33,7 +33,8 @@ This readme file will be structured according to the above outlined phases. Thus
 
 <br />
 <p align="center">  
-  <h1 align="center">A Dive Into Danish NLP</h1> 
+  <h2 align="center">Section 1</h2>
+  <h4 align="center"><i>Topic modelling<i/></h4>
 </p>
 
 
