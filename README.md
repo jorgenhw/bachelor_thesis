@@ -5,13 +5,13 @@
     <img src="https://i.imgur.com/BtQCfMu.png" alt="Logo" width=200 height=200>
   </a>
   
-  <h1 align="center">A Dive Into Danish NLP</h1> 
+  <h1 align="center">🏊‍♀️ A Dive Into Danish NLP 🏊‍♀️ </h1> 
   <h2 align="center"><i>Exploring the Strengths and Weaknesses of Danish Language Models using a new Fine-Grained Evaluation Technique</i></h2> 
-  <h3 align="center">Cognitive Science // Bachelor Thesis 2023</h3>
+  <h3 align="center">🧠 Cognitive Science // Bachelor Thesis 2023 🧠</h3>
 
 
   <p align="center">
-    Jørgen Højlund Wibe & Niels Aalund Krogsgaard
+    📒 Jørgen Højlund Wibe & Niels Aalund Krogsgaard
   </p>
 </p>
 
