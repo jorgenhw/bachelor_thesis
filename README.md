@@ -20,7 +20,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About the project
 
-In this project, we will be finetuning the GPT-3 Davinci model on a lyrics generation task. The lyrics are from the Danish songbook named "Højskolesangbogen" which contains around 600 songs of cultural significance to Denmark. GPT-3 (Generative Pre-trained Transformer 3) is a state-of-the-art language model developed by OpenAI that can generate human-like text. By finetuning GPT-3 on a specific task, we can fine-tune its capabilities to perform that task more effectively.
+This project consists of three phases: In the first phase, we test and compare four different topic modelling methods to find the one that produces the most human interpretable topics from a Danish Twitter dataset. In the second phase, we fine-tune 11 Danish language models on a multilabel classification task on the same Twitter dataset. In the last phase, we outline a new method for doing model error analysis on the subgroups made by the best topic model. 
+
+#### Structure of the readme file
+This readme file will be structured according to the above outlined phases. Thus, **section 1** contains details on which topic models were compared and provides links to notebooks which will enable a replication of the results presented in the bachelor thesis. Similarly, **section 2** contains details on which models were trained along with links to individual notebooks containing the scripts used for fine-tuning. The last **section (3)** contains a reproducible R-markdown scrip outlining how the sub-group error analysis was performed.
 
 ## Requirements
 
