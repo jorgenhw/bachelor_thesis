@@ -36,8 +36,9 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About the project
+This repository contains all the notebooks and files necessarry to reproduce the results found in the paper _'A Deep Dive into Danish NLP'_.
 
-This project consists of three phases: In the first phase, we test and compare four different topic modelling methods to find the one that produces the most human interpretable topics from a Danish Twitter dataset. In the second phase, we fine-tune 11 Danish language models on a multilabel classification task on the same Twitter dataset. In the last phase, we outline a new method for doing model error analysis on the subgroups made by the best topic model. 
+The project consists of three phases: In the first phase, we test and compare four different topic modelling methods to find the one that produces the most human interpretable topics from a Danish Twitter dataset. In the second phase, we fine-tune 11 Danish language models on a multilabel classification task on the same Twitter dataset. In the last phase, we outline a new method for doing model error analysis on the subgroups made by the best topic model. 
 
 #### Structure of the readme file
 This readme file will be structured according to the above outlined phases. Thus, **section 1** contains details on which topic models were compared and provides links to notebooks which will enable a replication of the results presented in the bachelor thesis. Similarly, **section 2** contains details on which models were trained along with links to individual notebooks containing the scripts used for fine-tuning. The last **section (3)** contains a reproducible R-markdown script outlining how the sub-group error analysis was performed.
@@ -51,7 +52,15 @@ This readme file will be structured according to the above outlined phases. Thus
 <br />
 <p align="center">  
   <h1 align="center">Section 1</h1>
-  <h2 align="center"><i>Topic modelling</i></h2>
+  <h2 align="center"><i>Topic Modelling</i></h2>
+</p>
+
+
+
+<br />
+<p align="center">  
+  <h1 align="center">Section 2</h1>
+  <h2 align="center"><i>Model Fine-tuning</i></h2>
 </p>
 
 
@@ -59,18 +68,16 @@ This readme file will be structured according to the above outlined phases. Thus
 1. Clone this repository:
 
 ```
-git clone https://github.com/jorgenhw/bachelor_thesis
-cd bachelor_thesis/topic_modelling
+git clone https://github.com/jorgenhw/model_fine_tuning
+cd bachelor_thesis/model_fine_tuning
 ```
 
-2. Install the required packages:
-```
-pip install -r requirements.txt
-```
-3. Open respective notebooks
+2. Open notebook of interest
 
-Run the notebook with the name of the model you want to examine e.g. ```jonfd/electra-small-nordic.ipynb```
-The below table outlines which notebooks contains which models along with a link to a the notebooks on Google Colab
+Open the notebook with the name of the model you want to examine e.g. ```jonfd/electra-small-nordic.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
+
+The below table outlines which notebooks contains which models.
+
 | Model      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
 | ScandiBERT      | Title       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Sluei065T_VH_XgXQi85OzmfPBlVoARc)       |
@@ -85,39 +92,25 @@ The below table outlines which notebooks contains which models along with a link
 | NB-BERT-large   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kFfVYTD47VFat5BOJH4I8rLVn8R1rmLt)        |
 
 
-## Finetuning
-1. Choose the GPT-3 model that you want to use for finetuning. You can find a list of available models and their sizes here: https://beta.openai.com/docs/models/gpt-3
+#### Content of each notebook
+Each notebook consist of five steps
 
-2. Set your hyperparameters
-```
-model = 'davinci'  # can be ada, babbage, curie or davinci
-n_epochs = 4
-batch_size = 4
-learning_rate_multiplier = 0.1
-prompt_loss_weight = 0.1
-```
-Replace 'davinci' with the model that you have chosen
+1. Initialization of GPU, installation of necesarry packages and setup of WANDB
+2. Importing libraries, data, and the language model
+3. Data preprocessing
+4. Fine-tuning
+5. Evaluation
 
-3. Fine-tune the model on your dataset using the OpenAI API:
+#### Conclusion
+In this project, we have successfully finetuned 11 Danish language models to demonstrate how a more fine-grained sub group error analysis metric can reveal new insights into language models. Suggestions for further research can be found in the paper _'A Deep Dive Into Danish NLP'_ (link provided in the top of this readme).
 
-```
-!openai api fine_tunes.create \
-    -t $train_file \
-    -m $model \
-    --n_epochs $n_epochs \
-    --batch_size $batch_size \
-    --learning_rate_multiplier $learning_rate_multiplier \
-    --prompt_loss_weight $prompt_loss_weight
-```
+This project is part of a bachelor thesis in Cognitive Science at Aarhus University, Denmark, 2023.
 
-
-## Evaluation
-Evaluate the performance of the finetuned model by generating lyrics and comparing them to a sample of the training data. You can also use metrics such as perplexity and BLEU score to quantitatively evaluate the model.
-
-## Conclusion
-In this project, we have successfully finetuned the GPT-3 model on a lyrics generation task. You can further improve the performance of the model by using a larger dataset, increasing the number of training epochs, fine-tuning on a specific artist or genre and last but not least, optimizing the hyperparameters.
-
-This project is part of an exam projekt in Cultural Data Science at Aarhus University, Denmark, 2023.
+<br />
+<p align="center">  
+  <h1 align="center">Section 3</h1>
+  <h2 align="center"><i>Evaluation Method</i></h2>
+</p>
 
 ## Contact
 
@@ -126,4 +119,6 @@ You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels
 <br />
 
 ## Acknowledgements
-The tools provided in this readme are all developed and provided by [OpenAI](https://openai.com/). We refer to their [documentation page](https://beta.openai.com/docs/introduction) for more detailed information.
+We gratefully acknowledge HuggingFace for developing an open source API for fine-tuning language models as well as providing us with easy-to-use language models off the batch. 
+
+Last but not the least, we thank the Google Team for the Google Colab and the use of GPU through this service.
