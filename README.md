@@ -23,13 +23,19 @@
 This project consists of three phases: In the first phase, we test and compare four different topic modelling methods to find the one that produces the most human interpretable topics from a Danish Twitter dataset. In the second phase, we fine-tune 11 Danish language models on a multilabel classification task on the same Twitter dataset. In the last phase, we outline a new method for doing model error analysis on the subgroups made by the best topic model. 
 
 #### Structure of the readme file
-This readme file will be structured according to the above outlined phases. Thus, **section 1** contains details on which topic models were compared and provides links to notebooks which will enable a replication of the results presented in the bachelor thesis. Similarly, **section 2** contains details on which models were trained along with links to individual notebooks containing the scripts used for fine-tuning. The last **section (3)** contains a reproducible R-markdown scrip outlining how the sub-group error analysis was performed.
+This readme file will be structured according to the above outlined phases. Thus, **section 1** contains details on which topic models were compared and provides links to notebooks which will enable a replication of the results presented in the bachelor thesis. Similarly, **section 2** contains details on which models were trained along with links to individual notebooks containing the scripts used for fine-tuning. The last **section (3)** contains a reproducible R-markdown script outlining how the sub-group error analysis was performed.
 
-## Requirements
+## Requirements to reproduce results
 
 * A machine with a GPU (we used Google Colab: a virtual notebook environment that executes code on virtual machines with GPU)
 * Python 3.6 or higher
-* The OpenAI API key (you can apply for one here: https://beta.openai.com/)
+* An R-markdown capable IDE
+
+<br />
+<p align="center">  
+  <h1 align="center">A Dive Into Danish NLP</h1> 
+</p>
+
 
 ## Set up
 1. Clone this repository:
