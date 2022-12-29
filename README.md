@@ -112,13 +112,20 @@ This project is part of a bachelor thesis in Cognitive Science at Aarhus Univers
   <h2 align="center"><i>Evaluation Method</i></h2>
 </p>
 
-## Contact
 
+<br />
+<p align="center">  
+  <h1 align="center">Contact</h1>
+</p>
 Feel free to contact the authors, [Jørgen Højlund Wibe](https://github.com/jorgenhw) or [Niels Aalund Krogsgaard](https://github.com/nielsaak) for any questions regarding the project.
 You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels](mailto:202008114@post.au.dk))
 <br />
 
-## Acknowledgements
+<br />
+<p align="center">  
+  <h1 align="center">Acknowledgements</h1>
+</p>
+
 We gratefully acknowledge HuggingFace for developing an open source API for fine-tuning language models as well as providing us with easy-to-use language models off the batch. 
 
 Last but not the least, we thank the Google Team for the Google Colab and the use of GPU through this service.
