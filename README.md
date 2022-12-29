@@ -33,8 +33,8 @@ This readme file will be structured according to the above outlined phases. Thus
 
 <br />
 <p align="center">  
-  <h2 align="center">Section 1</h2>
-  <h4 align="center"><i>Topic modelling<i/></h4>
+  <h1 align="center"><u>Section 1<u/></h1>
+  <h2 align="center"><i>Topic modelling<i/></h2>
 </p>
 
 
