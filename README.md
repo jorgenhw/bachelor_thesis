@@ -40,7 +40,7 @@ This repository contains all the notebooks and files necessarry to reproduce the
 
 The project consists of three phases: In the first phase, we test and compare four different topic modelling methods to find the one that produces the most human interpretable topics from a Danish Twitter dataset. In the second phase, we fine-tune 11 Danish language models on a multilabel classification task on the same Twitter dataset. In the last phase, we outline a new method for doing model error analysis on the subgroups made by the best topic model. 
 
-#### Structure of the readme file
+### Structure of the readme file
 This readme file will be structured according to the above outlined phases. Thus, **section 1** contains details on which topic models were compared and provides links to notebooks which will enable a replication of the results presented in the bachelor thesis. Similarly, **section 2** contains details on which models were trained along with links to individual notebooks containing the scripts used for fine-tuning. The last **section (3)** contains a reproducible R-markdown script outlining how the sub-group error analysis was performed.
 
 ## Requirements to reproduce results
@@ -92,7 +92,7 @@ The below table outlines which notebooks contains which models.
 | NB-BERT-large   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kFfVYTD47VFat5BOJH4I8rLVn8R1rmLt)        |
 
 
-#### Content of each notebook
+### Content of each notebook
 Each notebook consist of five steps
 
 1. Initialization of GPU, installation of necesarry packages and setup of WANDB
