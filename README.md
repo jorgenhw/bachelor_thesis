@@ -21,15 +21,15 @@
 <details open="open">
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About the project</a>
-    </li>
-    <li><a href="#repository-structure">Repository structure</a></li>
-    <li><a href="#data">Data</a></li>
-    <ul>
-      <li><a href="#dataset-1">Dataset 1</a></li>
-      <li><a href="#dataset-2">Dataset 2</a></li>
+    <li><a href="#about-the-project">About the project</a></li>
+    <li><a href="#section-1">Section 1</a></li>
+     <ul>
+      <li><a href="#example1">Example 1</a></li>
+      <li><a href="#example2">Example 2</a></li>
     </ul>
+    <li><a href="#section-2">Section 2</a></li>
+    <li><a href="#section-3">Section 3</a></li>
+    <li><a href="#data">Data</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
