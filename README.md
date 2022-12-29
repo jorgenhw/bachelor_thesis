@@ -33,8 +33,8 @@ This readme file will be structured according to the above outlined phases. Thus
 
 <br />
 <p align="center">  
-  <h1 align="center"><u>Section 1</h1>
-  <h2 align="center"><i>Topic modelling</h2>
+  <h1 align="center">Section 1</h1>
+  <h2 align="center"><i>Topic modelling</i></h2>
 </p>
 
 
@@ -42,8 +42,8 @@ This readme file will be structured according to the above outlined phases. Thus
 1. Clone this repository:
 
 ```
-git clone https://github.com/jorgenhw/GrundtviGPT-3
-cd GrundtviGPT-3
+git clone https://github.com/jorgenhw/bachelor_thesis
+cd bachelor_thesis/topic_modelling
 ```
 
 2. Install the required packages:
