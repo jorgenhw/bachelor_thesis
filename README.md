@@ -11,7 +11,7 @@
 
 
   <p align="center">
-    📒 Jørgen Højlund Wibe & Niels Aalund Krogsgaard
+    Jørgen Højlund Wibe & Niels Aalund Krogsgaard
   </p>
 </p>
 
