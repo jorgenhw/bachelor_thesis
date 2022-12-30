@@ -60,6 +60,9 @@ This readme file will be structured according to the above outlined phases. Thus
 * Python 3.6 or higher
 * An R-markdown capable IDE
 
+## Data
+aøsdpfkm
+
 <br />
 <p align="center">  
   <h1 align="center">Section 1</h1>
