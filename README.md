@@ -66,7 +66,7 @@ This readme file will be structured according to the above outlined phases. Thus
   <h2 align="center"><i>Topic Modelling</i></h2>
 </p>
 
-## Set up
+## 🔧 Set up
 1. Clone this repository:
 
 ```
@@ -99,7 +99,7 @@ In conclusion, the experiment we conducted to compare the performance of four to
 </p>
 
 
-## Set up
+## 🔧 Set up
 1. Clone this repository:
 
 ```
@@ -147,7 +147,7 @@ This project is part of a bachelor thesis in Cognitive Science at Aarhus Univers
   <h2 align="center"><i>Evaluation Method</i></h2>
 </p>
 
-## Set up
+## 🔧 Set up
 1. Clone this repository:
 
 ```
@@ -166,7 +166,7 @@ Instead of arriving at the trivial conclusion that larger models also have the h
 
 <br />
 <p align="center">  
-  <h1 align="center">Contact</h1>
+  <h1 align="center">💬 Contact 💬</h1>
 </p>
 Feel free to contact the authors, [Jørgen Højlund Wibe](https://github.com/jorgenhw) or [Niels Aalund Krogsgaard](https://github.com/nielsaak) for any questions regarding the project.
 You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels](mailto:202008114@post.au.dk))
