@@ -1,0 +1,1043 @@
+---
+title: "Model comparison"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,devtools, data.table, brms)
+```
+
+# LOADING DATA
+
+```{r}
+######## LOADING CLASSIFICATION REPORT #################
+
+# Function for loading multiple files
+read_plus <- function(flnm) {
+    read_csv(flnm) %>% 
+        mutate(filename = flnm)
+}
+
+# jonfd_electra-small-nordic
+classf_report_jonf <- list.files(path = "../data/jonfd_electra-small-nordic", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_jonf['MISS_binary'] <- ifelse(classf_report_jonf$Misclassification == "TRUE", 1, 0) 
+classf_report_jonf$model <- 1
+
+# vestinn/ScandiBERT
+classf_report_vestin <- list.files(path = "../data/vestinn_ScandiBERT", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_vestin['MISS_binary'] <- ifelse(classf_report_vestin$Misclassification == "TRUE", 1, 0) 
+classf_report_vestin$model <- 2
+
+# aelectra
+classf_report_aelectra <- list.files(path = "../data/aelectra", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_aelectra['MISS_binary'] <- ifelse(classf_report_aelectra$Misclassification == "TRUE", 1, 0) 
+classf_report_aelectra$model <- 3
+
+# xlm-roberta-base
+classf_report_XLM_base <- list.files(path = "../data/xlm-roberta-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_base['MISS_binary'] <- ifelse(classf_report_XLM_base$Misclassification == "TRUE", 1, 0)
+classf_report_XLM_base$model <- 4
+
+# xlm_roberta_large
+classf_report_XLM_large <- list.files(path = "../data/xlm_roberta_large", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_XLM_large['MISS_binary'] <- ifelse(classf_report_XLM_large$Misclassification == "TRUE", 1, 0)
+classf_report_XLM_large$model <- 5
+
+# twitter-xlm-roberta
+classf_report_twitter_xlm_roberta <- list.files(path = "../data/twitter-xlm-roberta", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_twitter_xlm_roberta['MISS_binary'] <- ifelse(classf_report_twitter_xlm_roberta$Misclassification == "TRUE", 1, 0)
+classf_report_twitter_xlm_roberta$model <- 6
+
+# flax
+classf_report_flax <- list.files(path = "../data/flax", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_flax['MISS_binary'] <- ifelse(classf_report_flax$Misclassification == "TRUE", 1, 0)
+classf_report_flax$model <- 7
+
+# danish-bert-botxo
+classf_report_danish_bert_botxo <- list.files(path = "../data/danish-bert-botxo", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_danish_bert_botxo['MISS_binary'] <- ifelse(classf_report_danish_bert_botxo$Misclassification == "TRUE", 1, 0)
+classf_report_danish_bert_botxo$model <- 8
+
+# mdeberta-v3-base
+classf_report_mdeberta_v3_base <- list.files(path = "../data/mdeberta-v3-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_mdeberta_v3_base['MISS_binary'] <- ifelse(classf_report_mdeberta_v3_base$Misclassification == "TRUE", 1, 0)
+classf_report_mdeberta_v3_base$model <- 9
+
+# nb-bert-base
+classf_report_nb_bert_base <- list.files(path = "../data/nb-bert-base", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_base['MISS_binary'] <- ifelse(classf_report_nb_bert_base$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_base$model <- 10
+
+# nb-bert-large
+classf_report_nb_bert_large <- list.files(path = "../data/nb-bert-large", pattern = "*.csv", 
+               full.names = T) %>% 
+    map_df(~read_plus(.))
+classf_report_nb_bert_large['MISS_binary'] <- ifelse(classf_report_nb_bert_large$Misclassification == "TRUE", 1, 0)
+classf_report_nb_bert_large$model <- 11
+
+##### COMBINING MODELS #####
+modelscombined <- rbind(classf_report_jonf, classf_report_vestin, classf_report_aelectra, classf_report_XLM_base, classf_report_XLM_large, classf_report_twitter_xlm_roberta, classf_report_flax,classf_report_danish_bert_botxo, classf_report_mdeberta_v3_base, classf_report_nb_bert_base, classf_report_nb_bert_large)
+
+
+########## LOADING TOPICS ###############
+# topics <- read_csv("../data/BerTopic/sub_groups_14112022.csv") %>% 
+#   rename(Text = original_tweet) 
+
+topics <- read_csv("../data/BerTopic/sub_groups_16122022.csv") %>%
+  rename(Text = original_tweet)
+
+
+
+##### MERGING MODELS WITH TOPICS
+all_models_w_topics <- merge(modelscombined,topics, by = "Text", all.x = T, all.y = F) %>% 
+  rename(run = filename) %>% 
+  select(Text, `Predicted Labels`, `True Labels`, new_topic, MISS_binary, run, model)
+all_models_w_topics <- all_models_w_topics[complete.cases(all_models_w_topics), ] # removing rows with NA's in topic (50 rows of which 10 were in Arabic)
+
+all_models_w_topics <- all_models_w_topics %>% 
+  mutate("new_topic" = new_topic + 2)
+```
+
+# VISUALISING TOPICS
+```{r}
+topics %>% 
+  group_by(new_topic) %>% 
+  summarise("count" = n())
+
+topics %>% 
+  mutate("new_topic" = new_topic + 2) %>% 
+  ggplot(aes(x = as.factor(new_topic))) +
+  geom_histogram(stat = "count", aes(fill = new_topic)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(title = "Histogram of Topic Counts", x = "Topic Number", y = "Count")
+
+#ggsave("../figures/plot_histogram_topics.png")
+```
+
+
+
+
+# GETTING ERROR RATES FOR EACH MODEL
+```{r}
+error_rate_per_run_per_topic <- all_models_w_topics %>% 
+  group_by(new_topic, run, model) %>% 
+  summarise("error_rate_per_run_per_topic_col" = mean(MISS_binary))
+
+error_rate_per_run_across_topics <- all_models_w_topics %>% 
+  group_by(run, model) %>%
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+tress <- merge(error_rate_per_run_per_topic, error_rate_per_run_across_topics, by = "run", all.x = T, all.y = F)
+
+quatro <- tress %>% 
+  mutate(diff = error_rate_per_run_per_topic_col - error_rate_per_run_across_topics)
+
+singo <- quatro %>% 
+  rename(ourmodel = `model.x`) %>% 
+  rename(difference = diff) %>% 
+  select(run, new_topic, ourmodel,difference)
+
+final <- singo %>% 
+  select(difference, ourmodel)
+```
+
+# Calculating Leave-one-group-out means
+```{r}
+loo_acc_df <- tibble("run" = 0, "model" = 0, "loo_acc" = 0, "left_out" = 0)
+
+for (i in unique(all_models_w_topics$new_topic)) {
+  for_loop_df <- all_models_w_topics[-which(all_models_w_topics$new_topic == i),]
+  
+  for_loop_vec <- for_loop_df %>% 
+    group_by(run, model) %>% 
+    summarise("loo_acc" = mean(MISS_binary)) %>%
+    ungroup() %>% 
+    mutate("left_out" = i)
+  
+  loo_acc_df <- rbind(loo_acc_df, for_loop_vec)
+  
+}
+
+# removing the empty row
+loo_acc_df <- loo_acc_df[-1,]
+
+# accuracy for each run of each model including all topics
+error_rate_per_run_across_topics <- all_models_w_topics %>% 
+  group_by(run, model) %>%
+  summarise("error_rate_per_run_across_topics" = mean(MISS_binary))
+
+acc_loo_acc_df <- merge(loo_acc_df, error_rate_per_run_across_topics, all.x = T, all.y = T, by = c("run", "model"))
+
+# accuract for each run of each model per topic
+error_rate_per_run_per_topic <- all_models_w_topics %>% 
+  group_by(new_topic, run, model) %>% 
+  summarise("error_rate_per_run_per_topic" = mean(MISS_binary))
+
+error_rate_per_run_per_topic$left_out <- error_rate_per_run_per_topic$new_topic
+
+all_accuracy_types_df <- merge(acc_loo_acc_df, error_rate_per_run_per_topic, all.x = T, all.y = T, by = c("run", "model", "left_out"))
+
+# arranging the dataframe
+all_accuracy_types_df <- all_accuracy_types_df %>%
+  select(-c(new_topic)) %>% 
+  arrange(left_out)
+```
+
+# Calculating within model distance to mean
+```{r}
+all_accuracy_types_diff_df <- all_accuracy_types_df %>% 
+  mutate(diff_topic = error_rate_per_run_per_topic - loo_acc)
+
+model_topic_accuracy_df <- all_accuracy_types_diff_df %>%
+  select(run, left_out, model, diff_topic, error_rate_per_run_per_topic)
+
+```
+
+# Grouping models for analysis
+```{r}
+# adding additional grouping variables, i.e. mono/multi, bert-architecture, size
+model_topic_accuracy_df$model_name <- str_extract(pattern = "data/.*/", string = model_topic_accuracy_df$run) 
+model_topic_accuracy_group_df <- model_topic_accuracy_df %>% 
+  mutate("model_name" = substr(model_topic_accuracy_df$model_name, 6, nchar(model_topic_accuracy_df$model_name)-1))
+
+# the groups of mono and multi language models
+mono <- c("aelectra", "roberta-base-danish", "danish-bert-botxo")
+multi <- c("ScandiBERT", "xlm-roberta-large", "xlm-roberta-base", "electra-small-nordic", "mdeberta-v3-base", "twitter-xlm-roberta", "nb-bert-large", "nb-bert-base")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("model_name" = ifelse(model_name == "flax", "roberta-base-danish", ifelse(model_name == "vestinn_ScandiBERT", "ScandiBERT", ifelse(model_name == "jonfd_electra-small-nordic", "electra-small-nordic", ifelse(model_name == "xlm_roberta_large", "xlm-roberta-large", model_name))))) %>% 
+  mutate("language" = case_when(model_name %in% mono ~ "mono",
+                                model_name %in% multi ~ "multi"))
+
+# size groups
+base <- c("xlm-roberta-base", "nb-bert-base")
+large <- c("xlm-roberta-large", "nb-bert-large")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("size" = ifelse(model_name %in% base, "base", ifelse(model_name %in% large, "large", NA)))
+
+# bert-architecture styles
+electra <- c("aelectra", "electra-small-nordic")
+roberta <- c("roberta-base-danish", "xlm-roberta-large", "xlm-roberta-base", "twitter-xlm-roberta")
+bert <- c("nb-bert-large", "nb-bert-base", "ScandiBERT", "danish-bert-botxo")
+deberta <- c("mdeberta-v3-base")
+
+model_topic_accuracy_group_df <- model_topic_accuracy_group_df %>% 
+  mutate("architecture_style" = ifelse(model_name %in% electra, "electra", 
+                                       ifelse(model_name %in% roberta, "roberta", 
+                                              ifelse(model_name %in% bert, "bert", 
+                                                     ifelse(model_name %in% deberta, "deberta", NA)
+                                                     )
+                                              )
+                                       )
+         )
+```
+
+## Simple visualisations
+```{r}
+model_topic_accuracy_group_df %>% 
+  ggplot(aes(x = as.factor(left_out), y = diff_topic)) +
+  #geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed")  +
+  geom_boxplot(fill = "#FF9999") +
+  theme_bw() +
+  labs(title = "Boxplot of RTAS", subtitle = "Distribution of RTAS for all models on all topics", x = "Topic Number", y = "RTAS")
+
+#ggsave(filename = "../figures/plot_1.png")
+```
+
+
+## Mono vs. multi
+
+### Making brms model with RTAS
+
+#### Priors
+```{r}
+library(tidybayes)
+
+prior_df <-  model_topic_accuracy_group_df %>% 
+  select(model, language, diff_topic, left_out) %>% 
+  rename(language_model = model) %>% 
+  mutate("left_out" = as.factor(left_out)) %>% 
+  mutate("language_model" = as.factor(language_model)) %>% 
+  filter(left_out == 5)
+
+prior_lingual_acc <- prior(normal(0,0.2), class = b) + 
+  prior(normal(0,0.2), class = Intercept) + 
+  prior(exponential(20), class = sd) +
+  prior(exponential(20), class = sigma)
+
+validate_prior(prior_lingual_acc, diff_topic ~ 1 + language + (1|language_model),
+               data = prior_df, family = gaussian())
+
+fit_prior_lingual <- brm(diff_topic ~ 1 + language + (1|language_model),
+            data = prior_df, 
+            family = gaussian(), 
+            sample_prior = "only", 
+            prior = prior_lingual_acc, 
+            chains = 4, 
+            cores = 4, 
+            iter = 4000, 
+            warmup = floor(4000/2))
+
+png("../figures/posterior_and_traceplots/mono_multi_model/mono_multi_prior_predictive_check.png", units = "px", width=1800, height=1200, res = 200)
+pp_check(fit_prior_lingual, ndraws = 100)+
+coord_cartesian(xlim = c(-1, 1))
+dev.off()
+
+### ACCURACY ###
+# prior_lingual_acc <- prior(normal(0.40,0.10), class = b) +
+#   prior(exponential(1), class = sd) +
+#   # prior(normal(0, 0.2), class = Intercept) +
+#   prior(exponential(1), class = sigma)
+# 
+# fit_prior_lingual_acc <- brm(error_rate_per_run_per_topic ~ 0 + language * left_out + (1 + language|language_model),
+#             data = analysis_df,
+#             family = gaussian(),
+#             sample_prior = "only",
+#             prior = prior_lingual_acc,
+#             chains = 4,
+#             cores = 4,
+#             iter = 2000,
+#             warmup = floor(2000/2))
+# 
+# pp_check(fit_prior_lingual_acc, ndraws = 100)+
+# coord_cartesian(xlim = c(-1, 1))
+# 
+# 
+# fit_lingual_acc <- brm(error_rate_per_run_per_topic ~ 0 + language * left_out + (1 + language|language_model),
+#             data = analysis_df,
+#             family = gaussian(),
+#             sample_prior = "no",
+#             prior = prior_lingual_acc,
+#             chains = 4,
+#             cores = 4,
+#             iter = 2000,
+#             warmup = floor(2000/2))
+# 
+# 
+# fit_lingual_acc
+# 
+# analysis_df %>%
+#   group_by(language) %>%
+#   summarise("mean" = mean(error_rate_per_run_per_topic))
+```
+
+#### Making the model
+```{r}
+# creating a function that filters for topic and creates ULAM model
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  select(model, language, diff_topic, left_out, error_rate_per_run_per_topic) %>% 
+  rename(language_model = model)
+
+func_lingual <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model_lingual <- brm(diff_topic ~ 1 + language + (1|language_model),
+            data = func_df, 
+            family = gaussian(), 
+            sample_prior = "no", 
+            prior = prior_lingual_acc, 
+            chains = 4, 
+            cores = 4, 
+            iter = 2000, 
+            warmup = floor(2000/2))
+  
+  return(func_model_lingual)
+}
+
+# applying the function for all topics individually
+list_models_ling <- lapply(as.list(unique(analysis_df$left_out)), func_lingual)
+```
+
+#### Checking sampling
+```{r}
+n <- length(list_models_ling)
+
+datalist_rhat = vector("list", length = n)
+
+for (i in 1:n){
+  temp <- brms::rhat(list_models_ling[[i]])[c(1,2,4)]
+  temp_df <- as.data.frame(temp) %>%
+    tibble::rownames_to_column("VALUE") %>% 
+    pivot_wider(names_from = VALUE, values_from = temp) %>% 
+    mutate("topic" = i) %>% 
+    relocate(topic) %>% 
+    mutate(across(where(is.numeric), round, 4))
+  
+  datalist_rhat[[i]] <- temp_df
+}
+
+ling_rhat = do.call(rbind, datalist_rhat)
+write_csv(ling_rhat, "../data/output_analysis/rhat/mono_multi_model_intercept_rhat.csv")
+
+datalist_rhat = vector("list", length = n)
+
+for (i in 1:n){
+  temp <- brms::rhat(list_models_ling[[i]])
+  temp_df <- as.data.frame(temp) %>%
+    tibble::rownames_to_column("VALUE") %>% 
+    pivot_wider(names_from = VALUE, values_from = temp) %>% 
+    mutate("topic" = i) %>% 
+    relocate(topic) %>% 
+    mutate(across(where(is.numeric), round, 4))
+  
+  datalist_rhat[[i]] <- temp_df
+}
+
+
+ling_rhat = do.call(rbind, datalist_rhat)
+write_csv(ling_rhat, "../data/output_analysis/rhat/mono_multi_model_intercept_rhat_all.csv")
+
+# Open a png file
+for (i in 1:n) {
+  png(paste(paste("../figures/posterior_and_traceplots/mono_multi_model/topic", i), "traceplot_intercept.png"), units = "px", width=2400, height=1200, res = 200)
+  plot(list_models_ling[[i]])
+  dev.off()
+  }
+
+# save traceplots of selected parameters from all models in a list
+datalist_ling_plot = vector("list", length = n)
+
+for (i in 1:n){
+  plot_temp <- mcmc_trace(list_models_ling[[i]], pars = c("b_Intercept", "b_languagemulti", "sigma"))
+  
+  datalist_ling_plot[[i]] <- plot_temp
+}
+
+# arguments passed to grid function
+grid_list <- gridExtra::arrangeGrob(nrow = 6, ncol = 1)
+
+# arrange plots for model 1 to 6 in a grid and save
+png("../figures/posterior_and_traceplots/mono_multi_model/mono_multi_intercept_topic_1_6_traceplot.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_ling_plot[1:6], grid_args = grid_list)
+dev.off()
+
+# arrange plots for model 7 to 12 in a grid and save
+png("../figures/posterior_and_traceplots/mono_multi_model/mono_multi_intercept_topic_7_12_traceplot.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_ling_plot[7:12], grid_args = grid_list)
+dev.off()
+
+for (i in 1:n){
+  png(paste(paste("../figures/posterior_and_traceplots/mono_multi_model/mono_multi_intercept_topic_", i, sep = ""), "_traceplot_all_parameters.png", sep = ""), units = "px", width=2400, height=1600, res = 200)
+  plot(mcmc_trace(list_models_ling[[i]]))
+  dev.off()
+  
+}
+
+```
+
+#### Generating Contrast Plots
+```{r}
+library(tidybayes)
+
+n <- length(list_models_ling)
+
+datalist_mono_multi = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_ling[[i]]) %>% 
+  mutate("RTAS" = b_languagemulti) %>% 
+  mutate("topic" = unique(analysis_df$left_out)[i])
+  
+  datalist_mono_multi[[i]] <- temp_df
+  
+}
+
+data_mono_multi = do.call(rbind, datalist_mono_multi)
+
+data_mono_multi %>% 
+  select(topic, RTAS) %>% 
+  mutate("topic" = as.factor(topic)) %>% 
+  ggplot(aes(y = topic, x = RTAS, fill = stat(x > 0))) +
+  stat_halfeye() +
+  geom_vline(xintercept = c(0), linetype = "dashed") +
+  scale_fill_manual(values = c("orange", "skyblue")) +
+  labs(title = "Posterior Plot for the Categorical Predictor", subtitle = "Difference in RTAS betweeen monolingual and multilingual models", x = "RTAS Difference", y = "Topic") +
+  theme_bw() + 
+  theme(legend.position="none")
+
+ggsave("../figures/mono_multi_models_intercept_contrast.png", width = 1500, height = 2000, units = "px")
+```
+#### Generating model output
+```{r}
+n <- length(list_models_ling)
+
+datalist_output_mono_multi = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_ling[[i]]) %>% 
+  #mutate("Multi-Mono" = b_languagemulti) %>% 
+  mutate("Multi-Mono" = b_languagemulti,
+         "Mono" = b_Intercept,
+         "Multi" = b_Intercept + b_languagemulti) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name) %>% 
+  summarise(mean = mean(value), ll   = quantile(value, prob = .025), ul   = quantile(value, prob = .975)) %>% 
+  filter((name == "Mono")|(name == "Multi")|(name == "Multi-Mono")|(name == "sigma")) %>%
+  mutate("name" = ifelse(name == "sigma", "Sigma", name)) %>% 
+  mutate("topic" = unique(analysis_df$left_out)[i]) %>% 
+  relocate(topic)
+  
+  datalist_output_mono_multi[[i]] <- temp_df
+}
+
+data_mono_multi_output = do.call(rbind, datalist_output_mono_multi)
+
+data_mono_multi_output_clean_1 <- data_mono_multi_output %>%
+  #filter(name != "Multi-Mono") %>% 
+  mutate(across(where(is.numeric), round, 4))
+
+write_csv(data_mono_multi_output_clean_1, "../data/output_analysis/model_values/mono_multi_model_intercept_estimates.csv")
+
+data_mono_multi_output_clean_2 <- data_mono_multi_output %>% 
+  filter(name == "Multi-Mono") %>% 
+  mutate(across(where(is.numeric), round, 4))
+
+write_csv(data_mono_multi_output_clean_2, "../data/output_analysis/model_values/mono_multi_model_intercept_estimates_clean.csv")
+```
+
+
+## Large vs. base
+#### Priors
+```{r}
+library(tidybayes)
+
+# making dataframe used for prior_checking. Since using the same priors for all models is sensible, I use only one of the topics for checking the priors
+prior_df <-  model_topic_accuracy_group_df %>% 
+  select(model, model_name, size, diff_topic, left_out) %>%
+  filter(!is.na(size)) %>% 
+  rename(language_model = model) %>% 
+  mutate(language_model_type = ifelse((model_name == "nb-bert-base")|(model_name == "nb-bert-large"), "nb-bert", "xlm-roberta")) %>% 
+  mutate("left_out" = as.factor(left_out)) %>% 
+  mutate("language_model" = as.factor(language_model)) %>% 
+  filter(left_out == 5)
+
+prior_model_size <- prior(normal(0,0.2), class = b) + 
+  prior(normal(0,0.2), class = Intercept) + 
+  prior(exponential(20), class = sd) +
+  prior(exponential(20), class = sigma)
+
+validate_prior(prior_model_size, diff_topic ~ 1 + size + (1|language_model_type) + (1|language_model),
+               data = prior_df, family = gaussian())
+
+fit_prior_size <- brm(diff_topic ~ 1 + size + (1|language_model_type) + (1|language_model),
+            data = prior_df, 
+            family = gaussian(), 
+            sample_prior = "only", 
+            prior = prior_model_size, 
+            chains = 4, 
+            cores = 4, 
+            iter = 4000, 
+            warmup = floor(4000/2))
+
+png("../figures/posterior_and_traceplots/size_model/size_prior_predictive_check.png", units = "px", width=1800, height=1200, res = 200)
+pp_check(fit_prior_size, ndraws = 100)+
+coord_cartesian(xlim = c(-1, 1))
+dev.off()
+
+```
+
+#### Making the models
+```{r}
+# creating a function that filters for topic and creates ULAM model
+analysis_df <-  model_topic_accuracy_group_df %>% 
+  select(model, model_name, size, diff_topic, left_out) %>%
+  filter(!is.na(size)) %>% 
+  rename(language_model = model) %>% 
+  mutate(language_model_type = ifelse((model_name == "nb-bert-base")|(model_name == "nb-bert-large"), "nb-bert", "xlm-roberta")) %>%
+  # mutate(language_model_type = ifelse((model_name == "nb-bert-base")|(model_name == "nb-bert-large"), 1, 2)) %>% 
+  mutate("left_out" = as.factor(left_out)) %>% 
+  # mutate("language_model_type" = as.factor(language_model_type)) %>% 
+  mutate("language_model" = as.factor(language_model))
+
+func_size <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model_size <- brm(diff_topic ~ 1 + size + (1|language_model_type) + (1|language_model),
+            data = func_df, 
+            family = gaussian(), 
+            sample_prior = "no", 
+            prior = prior_model_size, 
+            chains = 4, 
+            cores = 4, 
+            iter = 4000, 
+            warmup = floor(4000/2))
+  
+  return(func_model_size)
+}
+
+# applying the function for all topics individually
+list_models_size <- lapply(as.list(unique(analysis_df$left_out)), func_size)
+
+```
+
+
+
+#### Checking sampling
+```{r}
+library(bayesplot)
+
+n <- length(list_models_size)
+
+datalist_rhat = vector("list", length = n)
+
+for (i in 1:n){
+  #temp <- brms::rhat(list_models_size[[i]])
+  temp <- brms::rhat(list_models_size[[i]])[c(1,2,5)]
+  temp_df <- as.data.frame(temp) %>%
+    tibble::rownames_to_column("VALUE") %>% 
+    pivot_wider(names_from = VALUE, values_from = temp) %>% 
+    mutate("topic" = i) %>% 
+    relocate(topic) %>% 
+    mutate(across(where(is.numeric), round, 4))
+  
+  datalist_rhat[[i]] <- temp_df
+}
+
+
+size_rhat = do.call(rbind, datalist_rhat)
+write_csv(size_rhat, "../data/output_analysis/rhat/size_model_intercept_rhat.csv")
+
+datalist_rhat = vector("list", length = n)
+
+
+# Open a png file
+for (i in 1:n) {
+  png(paste(paste("../figures/posterior_and_traceplots/size_model/topic", i), "traceplot_intercept.png"), units = "px", width=2400, height=1200, res = 200)
+  plot(list_models_size[[i]])
+  dev.off()
+}
+
+# save traceplots of selected parameters from all models in a list
+datalist_size_plot = vector("list", length = n)
+
+for (i in 1:n){
+  plot_temp <- mcmc_trace(list_models_size[[i]], pars = c("b_Intercept", "b_sizelarge", "sigma"))
+  
+  datalist_size_plot[[i]] <- plot_temp
+}
+
+# arguments passed to grid function
+grid_list <- gridExtra::arrangeGrob(nrow = 6, ncol = 1)
+
+# arrange plots for model 1 to 6 in a grid and save
+png("../figures/posterior_and_traceplots/size_model/size_topic_1_6_traceplot_intercept.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_size_plot[1:6], grid_args = grid_list)
+dev.off()
+
+# arrange plots for model 7 to 12 in a grid and save
+png("../figures/posterior_and_traceplots/size_model/size_topic_7_12_traceplot_intercept.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_size_plot[7:12], grid_args = grid_list)
+dev.off()
+
+for (i in 1:n){
+  png(paste(paste("../figures/posterior_and_traceplots/size_model/size_topic_", i, sep = ""), "_traceplot_all_parameters_intercept.png", sep = ""), units = "px", width=2400, height=1600, res = 200)
+  plot(mcmc_trace(list_models_size[[i]]))
+  dev.off()
+  
+}
+```
+
+#### Generating Contrast Plots
+```{r}
+library(tidybayes)
+
+n <- length(list_models_size)
+
+datalist_size = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_size[[i]]) %>% 
+  mutate("RTAS_diff" = b_sizelarge) %>% 
+  mutate("topic" = unique(analysis_df$left_out)[i])
+  
+  datalist_size[[i]] <- temp_df
+  
+}
+
+data_size = do.call(rbind, datalist_size)
+
+data_size %>% 
+  select(topic, RTAS_diff) %>% 
+  mutate("Topic" = as.factor(topic)) %>% 
+  ggplot(aes(y = Topic, x = RTAS_diff, fill = stat(x > 0))) +
+  stat_halfeye() +
+  geom_vline(xintercept = c(0), linetype = "dashed") +
+  scale_fill_manual(values = c("orange", "skyblue")) +
+  labs(title = "Posterior Plot for the Categorical Predictor", subtitle = "Difference in RTAS betweeen base and large language models", x = "RTAS Difference", y = "Topic") +
+  theme_bw() + 
+  theme(legend.position="none")
+
+
+ggsave("../figures/size_models_contrast_intercept.png", width = 1500, height = 2000, units = "px")
+```
+
+#### Generating model output
+
+```{r}
+n <- length(list_models_size)
+
+datalist_output_size = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_size[[i]]) %>% 
+  mutate("Large-Base" = b_sizelarge,
+         "Base" = b_Intercept,
+         "Large" = b_Intercept + b_sizelarge) %>%
+  # mutate("Large-Base" = b_sizelarge - b_sizebase) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name) %>% 
+  summarise(mean = mean(value),
+            ll   = quantile(value, prob = .025),
+            ul   = quantile(value, prob = .975)) %>% 
+  filter((name == "Base")|
+         (name == "Large")|
+         (name == "Large-Base")|
+         (name == "sigma")
+         ) %>% 
+  mutate("name" = ifelse(name == "sigma", "Sigma", name)) %>% 
+  mutate("topic" = unique(analysis_df$left_out)[i]) %>% 
+  relocate(topic)
+  
+  datalist_output_size[[i]] <- temp_df
+}
+
+data_size_output = do.call(rbind, datalist_output_size)
+
+data_size_output <- data_size_output %>% 
+  mutate(across(where(is.numeric), round, 4))
+
+write_csv(data_size_output, "../data/output_analysis/model_values/size_model_estimates_intercept.csv")
+
+data_size_output_clean <- data_size_output %>% 
+  filter(name == "Large-Base")
+
+write_csv(data_size_output_clean, "../data/output_analysis/model_values/size_model_estimates_clean_intercept.csv")
+```
+
+## Comparing different architectures
+
+#### Priors
+```{r}
+library(tidybayes)
+
+# making dataframe used for prior_checking. Since using the same priors for all models is sensible, I use only one of the topics for checking the priors
+prior_df <-  model_topic_accuracy_group_df %>% 
+  select(model, architecture_style, diff_topic, left_out) %>%
+  rename(language_model = model) %>% 
+  mutate("left_out" = as.factor(left_out)) %>% 
+  mutate("language_model" = as.factor(language_model)) %>% 
+  filter(left_out == 5)
+
+prior_model_architecture <- prior(normal(0,0.2), class = b) + 
+  prior(exponential(20), class = sd) +
+  prior(exponential(20), class = sigma)
+
+validate_prior(prior_model_architecture, diff_topic ~ 0 + architecture_style + (1|language_model),
+               data = prior_df, family = gaussian())
+
+fit_prior_architecture <- brm(diff_topic ~ 0 + architecture_style + (1|language_model),
+            data = prior_df,
+            family = gaussian(), 
+            sample_prior = "only", 
+            prior = prior_model_architecture, 
+            chains = 4, 
+            cores = 4, 
+            iter = 4000, 
+            warmup = floor(4000/2))
+
+png("../figures/posterior_and_traceplots/architecture_model/architecture_prior_predictive_check.png", units = "px", width=1800, height=1200, res = 200)
+pp_check(fit_prior_lingual, ndraws = 100)+
+coord_cartesian(xlim = c(-1, 1))
+dev.off()
+```
+
+#### Making the models
+```{r}
+# creating a function that filters for topic and creates ULAM model
+analysis_df <- model_topic_accuracy_group_df %>% 
+  select(model, architecture_style, diff_topic, left_out) %>%
+  rename(language_model = model) %>% 
+  mutate("left_out" = as.factor(left_out)) %>% 
+  mutate("language_model" = as.factor(language_model))
+
+func_architecture <- function(topic){
+  func_df <- analysis_df %>% 
+    filter(left_out == topic)
+  
+  func_model_architecture <- brm(diff_topic ~ 0 + architecture_style + (1|language_model),
+            data = func_df, 
+            family = gaussian(), 
+            sample_prior = "no", 
+            prior = prior_model_architecture, 
+            chains = 4, 
+            cores = 4, 
+            iter = 2000, 
+            warmup = floor(2000/2))
+  
+  return(func_model_architecture)
+}
+
+# applying the function for all topics individually
+list_models_architecture <- lapply(as.list(unique(analysis_df$left_out)), func_architecture)
+```
+
+#### Checking sampling
+```{r}
+n <- length(list_models_architecture)
+
+datalist_rhat = vector("list", length = n)
+
+for (i in 1:n){
+  temp <- brms::rhat(list_models_architecture[[i]])[c(1,2,3,4,6)]
+  temp_df <- as.data.frame(temp) %>%
+    tibble::rownames_to_column("VALUE") %>% 
+    pivot_wider(names_from = VALUE, values_from = temp) %>% 
+    mutate("topic" = i) %>% 
+    relocate(topic) %>% 
+    mutate(across(where(is.numeric), round, 4))
+  
+  datalist_rhat[[i]] <- temp_df
+}
+
+
+architecture_rhat = do.call(rbind, datalist_rhat)
+write_csv(architecture_rhat, "../data/output_analysis/rhat/architecture_model_rhat.csv")
+
+datalist_rhat = vector("list", length = n)
+
+for (i in 1:n){
+  temp <- brms::rhat(list_models_architecture[[i]])
+  temp_df <- as.data.frame(temp) %>%
+    tibble::rownames_to_column("VALUE") %>% 
+    pivot_wider(names_from = VALUE, values_from = temp) %>% 
+    mutate("topic" = i) %>% 
+    relocate(topic) %>% 
+    mutate(across(where(is.numeric), round, 4))
+  
+  datalist_rhat[[i]] <- temp_df
+}
+
+
+architecture_rhat = do.call(rbind, datalist_rhat)
+write_csv(architecture_rhat, "../data/output_analysis/rhat/architecture_model_rhat_all.csv")
+
+# Open a png file
+# for (i in 1:n) {
+#   png(paste(paste("../figures/posterior_and_traceplots/architecture_model/topic", i), "traceplot.png"), units = "px", width=2400, height=1200, res = 200)
+#   plot(list_models_architecture[[i]])
+#   dev.off()
+#   }
+
+# save traceplots of selected parameters from all models in a list
+datalist_architecture_plot = vector("list", length = n)
+
+get_variables(list_models_architecture[[1]])
+
+for (i in 1:n){
+  plot_temp <- mcmc_trace(list_models_architecture[[i]], pars = c("b_architecture_stylebert", "b_architecture_styledeberta", "b_architecture_styleelectra", "b_architecture_styleroberta", "sigma")) + legend_none()
+  
+  datalist_architecture_plot[[i]] <- plot_temp
+}
+
+# arguments passed to grid function
+grid_list <- gridExtra::arrangeGrob(nrow = 4, ncol = 1)
+
+# arrange plots for model 1 to 4 in a grid and save
+png("../figures/posterior_and_traceplots/architecture_model/architecture_topic_1_4_traceplot.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_architecture_plot[1:4], grid_args = grid_list)
+dev.off()
+
+# arrange plots for model 5 to 8 in a grid and save
+png("../figures/posterior_and_traceplots/architecture_model/architecture_topic_5_8_traceplot.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_architecture_plot[5:8], grid_args = grid_list)
+dev.off()
+
+# arrange plots for model 9 to 12 in a grid and save
+png("../figures/posterior_and_traceplots/architecture_model/architecture_topic_9_12_traceplot.png", units = "px", width=1400, height=2000, res = 200)
+bayesplot_grid(plots = datalist_architecture_plot[9:12], grid_args = grid_list)
+dev.off()
+
+for (i in 1:n){
+  png(paste(paste("../figures/posterior_and_traceplots/architecture_model/architecture_topic_", i, sep = ""), "_traceplot_all_parameters.png", sep = ""), units = "px", width=2400, height=1600, res = 200)
+  plot(mcmc_trace(list_models_architecture[[i]]))
+  dev.off()
+  
+}
+```
+
+#### Generating Contrast Plots
+```{r}
+library(tidybayes)
+
+n <- length(list_models_architecture)
+
+datalist_architecture = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_architecture[[i]]) %>% 
+  mutate("BERT-DeBERTa" = b_architecture_stylebert - b_architecture_styledeberta) %>% 
+  mutate("BERT-RoBERTa" = b_architecture_stylebert - b_architecture_styleroberta) %>%
+  mutate("BERT-ELECTRA" = b_architecture_stylebert - b_architecture_styleelectra) %>%
+  mutate("DeBERTa-RoBERTa" = b_architecture_styledeberta - b_architecture_styleroberta) %>% 
+  mutate("DeBERTa-ELECTRA" = b_architecture_styledeberta - b_architecture_styleelectra) %>%
+  mutate("RoBERTa-ELECTRA" = b_architecture_styleroberta - b_architecture_styleelectra) %>%
+  mutate("topic" = unique(analysis_df$left_out)[i])
+  
+  datalist_architecture[[i]] <- temp_df
+  
+}
+
+data_architecture = do.call(rbind, datalist_architecture)
+
+plotlist_architecture = vector("list", length = n)
+
+for (i in 1:n) {
+  if ((i == 1)|(i == 4)|(i == 7)|(i == 10)) {
+    plotlist_architecture[[i]] <- data_architecture %>% 
+  select(topic, "BERT-DeBERTa":"RoBERTa-ELECTRA") %>% 
+  filter(topic == i) %>% 
+  mutate("topic" = as.factor(topic)) %>% 
+  pivot_longer(cols = "BERT-DeBERTa":"RoBERTa-ELECTRA", values_to = "RTAS", names_to = "Contrast") %>% 
+  ggplot(aes(y = Contrast, x = RTAS, fill = stat(x > 0))) +
+  stat_halfeye() +
+  geom_vline(xintercept = c(0), linetype = "dashed") +
+  scale_fill_manual(values = c("orange", "skyblue")) +
+  labs(
+    subtitle = paste("Contrast Plot For Topic", i), 
+    #subtitle = "Contrast betweeen architecture types", 
+    xlab = "RTAS", ylab = "Topic") + 
+  theme_bw() + 
+      theme(legend.position="none",
+        axis.title.y = element_blank()
+        )
+  }
+  else{
+plotlist_architecture[[i]] <- data_architecture %>% 
+  select(topic, "BERT-DeBERTa":"RoBERTa-ELECTRA") %>% 
+  filter(topic == i) %>% 
+  mutate("topic" = as.factor(topic)) %>% 
+  pivot_longer(cols = "BERT-DeBERTa":"RoBERTa-ELECTRA", values_to = "RTAS", names_to = "Contrast") %>% 
+  ggplot(aes(y = Contrast, x = RTAS, fill = stat(x > 0))) +
+  stat_halfeye() +
+  geom_vline(xintercept = c(0), linetype = "dashed") +
+  scale_fill_manual(values = c("orange", "skyblue")) +
+  labs(
+    subtitle = paste("Contrast Plot For Topic", i), 
+    #subtitle = "Contrast betweeen architecture types", 
+    xlab = "RTAS", ylab = "Topic") + 
+  #theme(legend.position="none") +
+  theme_bw() + 
+  theme(legend.position="none",
+           axis.text.y=element_blank(),  #remove y axis labels
+        axis.ticks.y=element_blank(),  #remove y axis ticks
+        axis.title.y=element_blank()
+        )
+}
+}
+
+pacman::p_load(gridExtra, cowplot, grid)
+
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+#combine using cowplot
+plot_architecture <- plot_grid(plotlist_architecture[[1]], plotlist_architecture[[2]], plotlist_architecture[[3]],
+          plotlist_architecture[[4]], plotlist_architecture[[5]], plotlist_architecture[[6]],
+          plotlist_architecture[[7]], plotlist_architecture[[8]], plotlist_architecture[[9]],
+          plotlist_architecture[[10]], plotlist_architecture[[11]], plotlist_architecture[[12]],
+          ncol = 3, nrow = 4, rel_widths = c(1/4, 1/6, 1/6))
+
+ggsave("../figures/architecture_contrasts_orange.png", plot = plot_architecture, width = 3000, height = 4000, units = "px")
+```
+
+#### Generating model output
+```{r}
+n <- length(list_models_architecture)
+
+datalist_output_architecture = vector("list", length = n)
+
+for (i in 1:n) {
+  temp_df <- as_draws_df(list_models_architecture[[i]]) %>% 
+  mutate("BERT-DeBERTa" = b_architecture_stylebert - b_architecture_styledeberta) %>% 
+  mutate("BERT-RoBERTa" = b_architecture_stylebert - b_architecture_styleroberta) %>%
+  mutate("BERT-ELECTRA" = b_architecture_stylebert - b_architecture_styleelectra) %>%
+  mutate("DeBERTa-RoBERTa" = b_architecture_styledeberta - b_architecture_styleroberta) %>% 
+  mutate("DeBERTa-ELECTRA" = b_architecture_styledeberta - b_architecture_styleelectra) %>%
+  mutate("RoBERTa-ELECTRA" = b_architecture_styleroberta - b_architecture_styleelectra) %>%
+  pivot_longer(everything()) %>% 
+  group_by(name) %>% 
+  summarise(mean = mean(value),
+            ll   = quantile(value, prob = .025),
+            ul   = quantile(value, prob = .975)) %>% 
+  filter((name == "b_architecture_stylebert")|
+         (name == "b_architecture_styledeberta")|
+           (name == "b_architecture_styleroberta")|
+           (name == "b_architecture_styleelectra")|
+           (name == "BERT-DeBERTa")|
+           (name == "BERT-RoBERTa")|
+           (name == "BERT-ELECTRA")|
+           (name == "DeBERTa-RoBERTa")|
+           (name == "DeBERTa-ELECTRA")|
+           (name == "RoBERTa-ELECTRA")|
+         (name == "sigma")
+         ) %>% 
+    mutate("name" = ifelse(name == "b_architecture_stylebert", "BERT",ifelse(name == "b_architecture_styledeberta", "DeBERTa", ifelse(name == "b_architecture_styleroberta", "RoBERTa", ifelse(name == "b_architecture_styleelectra", "ELECTRA", name))))) %>% 
+    mutate("topic" = unique(analysis_df$left_out)[i]) %>% 
+    relocate(topic)
+  
+  datalist_output_architecture[[i]] <- temp_df
+}
+
+data_architecture_output = do.call(rbind, datalist_output_architecture)
+
+data_architecture_output <- data_architecture_output %>% 
+  mutate(across(where(is.numeric), round, 4))
+
+write_csv(data_architecture_output, "../data/output_analysis/model_values/architecture_model_estimates.csv")
+
+data_architecture_output_clean <- data_architecture_output %>% 
+  filter((name == "BERT-DeBERTa")|(name == "BERT-RoBERTa")|(name == "BERT-ELECTRA")|(name == "DeBERTa-RoBERTa")|(name == "DeBERTa-ELECTRA")|(name == "RoBERTa-ELECTRA"))
+
+write_csv(data_architecture_output_clean, "../data/output_analysis/model_values/architecture_model_estimates_clean.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
