@@ -87,6 +87,10 @@ The below table outlines which notebooks contains which methods.
 | TweeTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1q1WYhRYJYb13hMwGvZRZ0MxP5X3eWVp0)        |
 | BERTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1P6t6s52G6ySedTDg_09bO_c_7SyQlv9u)        |
 
+## Conclusion
+In conclusion, the experiment we conducted to compare the performance of four topic modelling methods - NMF, LDA, BERTopic, and TweeTopic - showed that BERTopic was the best performer, meaning it was able to create the most human interpretable subgroups in the data. This was demonstrated through the evaluation method of qualitative assessment.
+
+
 
 <br />
 <p align="center">  
@@ -123,7 +127,7 @@ The below table outlines which notebooks contains which models.
 | NB-BERT-large   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kFfVYTD47VFat5BOJH4I8rLVn8R1rmLt)        |
 
 
-### Content of each notebook
+## Content of each notebook
 Each notebook consist of five steps
 
 1. Initialization of GPU, installation of necesarry packages and setup of WANDB
@@ -132,7 +136,7 @@ Each notebook consist of five steps
 4. Fine-tuning
 5. Evaluation
 
-#### Conclusion
+## Conclusion
 In this project, we have successfully finetuned 11 Danish language models to demonstrate how a more fine-grained sub group error analysis metric can reveal new insights into language models. Suggestions for further research can be found in the paper _'A Deep Dive Into Danish NLP'_ (link provided in the top of this readme).
 
 This project is part of a bachelor thesis in Cognitive Science at Aarhus University, Denmark, 2023.
@@ -153,9 +157,9 @@ cd bachelor_thesis/analysis_R
 
 2. Open markdown file 
 
-#### Content of markdown file
+## Content of markdown file
 
-#### Conclusion
+## Conclusion
 In this markdown file we demonstrate how to conduct a subgroup error analysis on the performance of the fine-tuned models (section 2) in the the topics made by BERTopic in  section 1.
 
 Instead of arriving at the trivial conclusion that larger models also have the highest accuracy in the sub-groups, we instead calculate the difference between each sub-group accuracy and the overall accuracy of a given language model. This is done through leave-one-group-out mean calculation to reduce the data-leakage between accuracy scores, since we are interested in the difference between a sub-group and all other groups that are not that sub-group. We call the resulting values a Relative Topic Accuracy Correction (RTAC). 
@@ -173,6 +177,8 @@ You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels
   <h1 align="center">Acknowledgements</h1>
 </p>
 
-We gratefully acknowledge HuggingFace for developing an open source API for fine-tuning language models as well as providing us with easy-to-use language models off the batch. 
+We would like to express our sincere gratitude to Google Colab and Hugging Face for their invaluable contributions to the field of machine learning and natural language processing.
 
-Last but not the least, we thank the Google Team for the Google Colab and the use of GPU through this service.
+Google Colab has provided us with a powerful platform for conducting research and development, allowing us to access state-of-the-art resources and technologies without the need for expensive hardware or software. Its intuitive interface and seamless integration with Google Drive have made it an essential tool for collaborating together and sharing our findings.
+
+Hugging Face, on the other hand, has revolutionized the way we work with transformer-based models, providing us with a vast library of pre-trained models and a user-friendly API that allows us to easily fine-tune and deploy them for various tasks. Its commitment to open source and constantly updating its offerings have made it a go-to resource for researchers and practitioners alike.
