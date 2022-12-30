@@ -21,7 +21,7 @@
   <ol>
     <li><a href="#about-the-project">About the project</a></li>
       <ul>
-        <li><a href="#Structure of the readme file">Example 2</a></li>
+        <li><a href="#structure-of-the-readme-file">Structure of the readme file</a></li>
     </ul>
     <li><a href="#section-1">Section 1: <i>Topic Modelling</i></a></li>
      <ul>
