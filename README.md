@@ -55,6 +55,26 @@ This readme file will be structured according to the above outlined phases. Thus
   <h2 align="center"><i>Topic Modelling</i></h2>
 </p>
 
+## Set up
+1. Clone this repository:
+
+```
+git clone https://github.com/jorgenhw/bachelor_thesis
+cd bachelor_thesis/topic_modelling
+```
+
+2. Open notebook of interest
+
+Open the notebook with the name of the topic modelling method you want to examine e.g. ```LDA.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
+
+The below table outlines which notebooks contains which methods.
+
+| Method      | Filename | Colab link |
+| ----------- | ----------- | ----------- |
+| Non-Negative Matrix Factorization (NMF)      | NMF.ipynb       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PfB7Xtf3NmcUYfu5muydD2bNB_AMz8PW)       |
+| Latent Dirichlet Allocation   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IoNVFxeqQTJTztl9ezG12BnC4NDEAt-M)        |
+| TweeTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1q1WYhRYJYb13hMwGvZRZ0MxP5X3eWVp0)        |
+| BERTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1P6t6s52G6ySedTDg_09bO_c_7SyQlv9u)        |
 
 
 <br />
@@ -68,7 +88,7 @@ This readme file will be structured according to the above outlined phases. Thus
 1. Clone this repository:
 
 ```
-git clone https://github.com/jorgenhw/model_fine_tuning
+git clone https://github.com/jorgenhw/bachelor_thesis
 cd bachelor_thesis/model_fine_tuning
 ```
 
@@ -112,6 +132,22 @@ This project is part of a bachelor thesis in Cognitive Science at Aarhus Univers
   <h2 align="center"><i>Evaluation Method</i></h2>
 </p>
 
+## Set up
+1. Clone this repository:
+
+```
+git clone https://github.com/jorgenhw/bachelor_thesis
+cd bachelor_thesis/analysis_R
+```
+
+2. Open markdown file 
+
+#### Content of markdown file
+
+#### Conclusion
+In this markdown file we demonstrate how to conduct a subgroup error analysis on the performance of the fine-tuned models (section 2) in the the topics made by BERTopic in  section 1.
+
+Instead of arriving at the trivial conclusion that larger models also have the highest accuracy in the sub-groups, we instead calculate the difference between each sub-group accuracy and the overall accuracy of a given language model. This is done through leave-one-group-out mean calculation to reduce the data-leakage between accuracy scores, since we are interested in the difference between a sub-group and all other groups that are not that sub-group. We call the resulting values a Relative Topic Accuracy Correction (RTAC). 
 
 <br />
 <p align="center">  
