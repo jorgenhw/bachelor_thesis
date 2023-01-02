@@ -111,10 +111,9 @@ cd bachelor_thesis/model_fine_tuning
 ```
 
 2. Open notebook
-
 Open the notebook ```fine_tuning_reproducible.ipynb``` either through your own IDE or through Google Colab (link is provided in the table below).
 
-All 11 models examined are fine-tuned using the exact same script.
+All 11 models examined are fine-tuned using the exact same script. The below script trains a RoBERTa model so one can run the script right off the batch, however, to train another model with the script, simply replace the model name.
 
 | Model      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
