@@ -165,15 +165,14 @@ In this markdown file we demonstrate how to conduct a subgroup error analysis on
 
 Instead of arriving at the trivial conclusion that larger models also have the highest accuracy in the sub-groups, we instead calculate the difference between each sub-group accuracy and the overall accuracy of a given language model. This is done through leave-one-group-out mean calculation to reduce the data-leakage between accuracy scores, since we are interested in the difference between a sub-group and all other groups that are not that sub-group. We call the resulting values a Relative Topic Accuracy Correction (RTAC). 
 
-<br />
+
 <p align="center">  
   <h1 align="center">💬 Contact 💬</h1>
 </p>
+
 Feel free to contact the authors, [Jørgen Højlund Wibe](https://github.com/jorgenhw) or [Niels Aalund Krogsgaard](https://github.com/nielsaak) for any questions regarding the project.
 You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels](mailto:202008114@post.au.dk))
-<br />
 
-<br />
 <p align="center">  
   <h1 align="center">Acknowledgements</h1>
 </p>
