@@ -86,7 +86,7 @@ The below table outlines which notebooks contains which methods.
 | Method      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
 | Non-Negative Matrix Factorization (NMF)      | NMF_-_generating_topics.ipynb       |        |
-| Latent Dirichlet Allocation   | ```LDA_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
+| Latent Dirichlet Allocation   | ```LDA_-_generating_topics.ipynb```        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
 | TweeTopic   | GSDMM_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IfgMAcWC6MxaaFp4plrix75dEKWzfsRP)        |
 | BERTopic   | BERTopic_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lxfx4Ke2TGp-UoxqOlMTgLkOQH3RRdVL)        |
 
