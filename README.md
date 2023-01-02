@@ -166,9 +166,9 @@ The markdown file consist of three steps
 1. Loading data
 2. Calculating RTAC scores
 3. Model Comparison with Bayesian Modelling
-  1. Mono- vs. Multilingual Language Models
-  2. Base vs. Large Language Models
-  3. Language Models of different BERT-style architectures
+   1. Mono- vs. Multilingual Language Models
+   2. Base vs. Large Language Models
+   3. Language Models of different BERT-style architectures
 
 ## Conclusion
 In this markdown file we demonstrate how to conduct a subgroup error analysis on the performance of the fine-tuned models (section 2) in the the topics made by BERTopic in  section 1.
