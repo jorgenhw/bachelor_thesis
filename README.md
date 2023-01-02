@@ -86,9 +86,9 @@ The below table outlines which notebooks contains which methods.
 | Method      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
 | Non-Negative Matrix Factorization (NMF)      | NMF.ipynb       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PfB7Xtf3NmcUYfu5muydD2bNB_AMz8PW)       |
-| Latent Dirichlet Allocation   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IoNVFxeqQTJTztl9ezG12BnC4NDEAt-M)        |
-| TweeTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1q1WYhRYJYb13hMwGvZRZ0MxP5X3eWVp0)        |
-| BERTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1P6t6s52G6ySedTDg_09bO_c_7SyQlv9u)        |
+| Latent Dirichlet Allocation   | LDA.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
+| TweeTopic   | GSDMM.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IfgMAcWC6MxaaFp4plrix75dEKWzfsRP)        |
+| BERTopic   | BERTopic.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lxfx4Ke2TGp-UoxqOlMTgLkOQH3RRdVL)        |
 
 ## Conclusion
 In conclusion, the experiment we conducted to compare the performance of four topic modelling methods - NMF, LDA, BERTopic, and TweeTopic - showed that BERTopic was the best performer, meaning it was able to create the most human interpretable subgroups in the data. This was demonstrated through the evaluation method of qualitative assessment.
