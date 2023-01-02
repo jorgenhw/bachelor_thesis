@@ -161,6 +161,14 @@ cd bachelor_thesis/analysis_R
 2. Open markdown file 
 
 ## Content of markdown file
+The markdown file consist of five steps
+
+1. Loading data
+2. Calculating RTAC scores
+3. Model Comparison with Bayesian Modelling
+    a. Mono- vs. Multilingual Language Models
+    b. Base vs. Large Language Models
+    c. Language Models of different BERT-style architectures
 
 ## Conclusion
 In this markdown file we demonstrate how to conduct a subgroup error analysis on the performance of the fine-tuned models (section 2) in the the topics made by BERTopic in  section 1.
