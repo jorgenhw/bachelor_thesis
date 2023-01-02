@@ -79,14 +79,14 @@ cd bachelor_thesis/topic_modelling
 
 2. Open notebook of interest
 
-Open the notebook with the name of the topic modelling method you want to examine e.g. ```LDA.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
+Open the notebook with the name of the topic modelling method you want to examine e.g. ```LDA_-_generating_topics.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
 
 The below table outlines which notebooks contains which methods.
 
 | Method      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
 | Non-Negative Matrix Factorization (NMF)      | NMF_-_generating_topics.ipynb       |        |
-| Latent Dirichlet Allocation   | LDA_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
+| Latent Dirichlet Allocation   | ```LDA_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
 | TweeTopic   | GSDMM_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IfgMAcWC6MxaaFp4plrix75dEKWzfsRP)        |
 | BERTopic   | BERTopic_-_generating_topics.ipynb        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lxfx4Ke2TGp-UoxqOlMTgLkOQH3RRdVL)        |
 
