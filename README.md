@@ -6,7 +6,7 @@
   </a>
   
   <h1 align="center">🏊‍♀️ A Dive Into Danish NLP 🏊‍♀️ </h1> 
-  <h2 align="center"><i>Exploring the Strengths and Weaknesses of Danish Language Models using a new Fine-Grained Evaluation Technique</i></h2> 
+  <h2 align="center"><i>Exploring the Strengths and Weaknesses of Danish Language Models</i></h2> 
   <h3 align="center">🧠 Cognitive Science // Bachelor Thesis 2023 🧠</h3>
 
 
@@ -60,9 +60,6 @@ This readme file will be structured according to the above outlined phases. Thus
 * Python 3.6 or higher
 * An R-markdown capable IDE
 
-## Data
-aøsdpfkm
-
 <br />
 <p align="center">  
   <h1 align="center">Section 1</h1>
@@ -79,16 +76,16 @@ cd bachelor_thesis/topic_modelling
 
 2. Open notebook of interest
 
-Open the notebook with the name of the topic modelling method you want to examine e.g. ```LDA.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
+Open the notebook with the name of the topic modelling method you want to examine e.g. ```LDA_-_generating_topics.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
 
 The below table outlines which notebooks contains which methods.
 
 | Method      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
-| Non-Negative Matrix Factorization (NMF)      | NMF.ipynb       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PfB7Xtf3NmcUYfu5muydD2bNB_AMz8PW)       |
-| Latent Dirichlet Allocation   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IoNVFxeqQTJTztl9ezG12BnC4NDEAt-M)        |
-| TweeTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1q1WYhRYJYb13hMwGvZRZ0MxP5X3eWVp0)        |
-| BERTopic   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1P6t6s52G6ySedTDg_09bO_c_7SyQlv9u)        |
+| Non-Negative Matrix Factorization (NMF)      | ```NMF_-_generating_topics.ipynb```       |        |
+| Latent Dirichlet Allocation   | ```LDA_-_generating_topics.ipynb```        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_3Gw_y6jSUMaid17sgceX2q-nvCrN6Yk)        |
+| TweeTopic   | ```GSDMM_-_generating_topics.ipynb```        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IfgMAcWC6MxaaFp4plrix75dEKWzfsRP)        |
+| BERTopic   | ```BERTopic_-_generating_topics.ipynb```        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lxfx4Ke2TGp-UoxqOlMTgLkOQH3RRdVL)        |
 
 ## Conclusion
 In conclusion, the experiment we conducted to compare the performance of four topic modelling methods - NMF, LDA, BERTopic, and TweeTopic - showed that BERTopic was the best performer, meaning it was able to create the most human interpretable subgroups in the data. This was demonstrated through the evaluation method of qualitative assessment.
@@ -110,34 +107,23 @@ git clone https://github.com/jorgenhw/bachelor_thesis
 cd bachelor_thesis/model_fine_tuning
 ```
 
-2. Open notebook of interest
+2. Open notebook
+Open the notebook ```fine_tuning_reproducible.ipynb``` either through your own IDE or through Google Colab (link is provided in the table below).
 
-Open the notebook with the name of the model you want to examine e.g. ```jonfd/electra-small-nordic.ipynb``` either through your own IDE or through Google Colab (links are provided in the table below).
-
-The below table outlines which notebooks contains which models.
+All 11 models examined are fine-tuned using the exact same script. The below script trains a RoBERTa model so one can run the script right off the batch, however, to train another model with the script, simply replace the model name.
 
 | Model      | Filename | Colab link |
 | ----------- | ----------- | ----------- |
-| ScandiBERT      | Title       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Sluei065T_VH_XgXQi85OzmfPBlVoARc)       |
-| XLM-RoBERTa Large   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IoNVFxeqQTJTztl9ezG12BnC4NDEAt-M)        |
-| XLM-RoBERTa Base   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1q1WYhRYJYb13hMwGvZRZ0MxP5X3eWVp0)        |
-| Nordic ELECTRA-Small   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1P6t6s52G6ySedTDg_09bO_c_7SyQlv9u)        |
-| AELAECTRA   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1S0gwDVc3tvnO3uvM8i3oOiAPHBFZoKXH#scrollTo=O6svYNzcBB4X)        |
-| RøBÆRTa   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1S0gwDVc3tvnO3uvM8i3oOiAPHBFZoKXH#scrollTo=O6svYNzcBB4X)        |
-| Danish BERT BotXO   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1S0gwDVc3tvnO3uvM8i3oOiAPHBFZoKXH#scrollTo=O6svYNzcBB4X)        |
-| DeBERTaV3   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1S0gwDVc3tvnO3uvM8i3oOiAPHBFZoKXH#scrollTo=O6svYNzcBB4X)        |
-| Twitter-XLM-Roberta-base   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1S0gwDVc3tvnO3uvM8i3oOiAPHBFZoKXH#scrollTo=O6svYNzcBB4X)        |
-| NB-BERT-large   | Text        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1kFfVYTD47VFat5BOJH4I8rLVn8R1rmLt)        |
+| RoBERTa      | ```fine_tuning_reproducible.ipynb```       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1I4GyXlebR7q1nbQ6uOR92cFyqCdDTgW2#scrollTo=sR5zEsTidz5e)       |
 
-
-## Content of each notebook
-Each notebook consist of five steps
+## Content of the notebook
+The notebook consist of five steps
 
 1. Initialization of GPU, installation of necesarry packages and setup of WANDB
 2. Importing libraries, data, and the language model
 3. Data preprocessing
-4. Fine-tuning
-5. Evaluation
+4. Hyperparamter tuning
+5. Fine-tuning
 
 ## Conclusion
 In this project, we have successfully finetuned 11 Danish language models to demonstrate how a more fine-grained sub group error analysis metric can reveal new insights into language models. Suggestions for further research can be found in the paper _'A Deep Dive Into Danish NLP'_ (link provided in the top of this readme).
@@ -161,21 +147,28 @@ cd bachelor_thesis/analysis_R
 2. Open markdown file 
 
 ## Content of markdown file
+The markdown file consist of three steps
+
+1. Loading data
+2. Calculating RTAC scores
+3. Model Comparison with Bayesian Modelling
+   1. Mono- vs. Multilingual Language Models
+   2. Base vs. Large Language Models
+   3. Language Models of different BERT-style architectures
 
 ## Conclusion
 In this markdown file we demonstrate how to conduct a subgroup error analysis on the performance of the fine-tuned models (section 2) in the the topics made by BERTopic in  section 1.
 
 Instead of arriving at the trivial conclusion that larger models also have the highest accuracy in the sub-groups, we instead calculate the difference between each sub-group accuracy and the overall accuracy of a given language model. This is done through leave-one-group-out mean calculation to reduce the data-leakage between accuracy scores, since we are interested in the difference between a sub-group and all other groups that are not that sub-group. We call the resulting values a Relative Topic Accuracy Correction (RTAC). 
 
-<br />
+
 <p align="center">  
   <h1 align="center">💬 Contact 💬</h1>
 </p>
+
 Feel free to contact the authors, [Jørgen Højlund Wibe](https://github.com/jorgenhw) or [Niels Aalund Krogsgaard](https://github.com/nielsaak) for any questions regarding the project.
 You may do so through our emails ([Jørgen](mailto:201807750@post.au.dk), [Niels](mailto:202008114@post.au.dk))
-<br />
 
-<br />
 <p align="center">  
   <h1 align="center">Acknowledgements</h1>
 </p>
