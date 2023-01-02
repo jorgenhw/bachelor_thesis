@@ -6,7 +6,7 @@
   </a>
   
   <h1 align="center">🏊‍♀️ A Dive Into Danish NLP 🏊‍♀️ </h1> 
-  <h2 align="center"><i>Exploring the Strengths and Weaknesses of Danish Language Models using a new Fine-Grained Evaluation Technique</i></h2> 
+  <h2 align="center"><i>Exploring the Strengths and Weaknesses of Danish Language Models</i></h2> 
   <h3 align="center">🧠 Cognitive Science // Bachelor Thesis 2023 🧠</h3>
 
 
